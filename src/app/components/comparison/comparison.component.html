@@ -165,7 +165,7 @@
       (change)="this.selectGame(selectedGame)"
       class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
     >
-      <option [ngValue]="null">-- Select a game --</option>
+      <option>-- Select a game --</option>
       <option *ngFor="let game of this.games" [value]="game.id">{{ game.name }}</option>
     </select>
     <ng-template #loadingGames>
@@ -208,15 +208,6 @@
               <div class="text-green-600 font-medium">✓</div>
               <div *ngIf="achievement.users[user.id]?.unlockTime" class="text-xs text-gray-500">
                 {{ achievement.users[user.id]?.unlockTime | date:'shortDate' }}
-              </div>
-              <div *ngIf="this.getFirstAchiever(achievement) === user.id" class="text-xs text-blue-600 font-medium mt-1">
-                First!
-              </div>
-              <div *ngIf="this.getFirstAchiever(achievement) && this.getFirstAchiever(achievement) !== user.id && achievement.users[this.getFirstAchiever(achievement)]?.achieved && achievement.users[user.id]?.unlockTime && achievement.users[this.getFirstAchiever(achievement)]?.unlockTime" class="text-xs text-gray-500 mt-1">
-                +{{ this.formatTimeDifference(
-                achievement.users[user.id]?.unlockTime,
-                achievement.users[this.getFirstAchiever(achievement)]?.unlockTime
-              ) }}
               </div>
             </ng-container>
             <ng-template #notAchieved>
