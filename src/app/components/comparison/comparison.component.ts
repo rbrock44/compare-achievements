@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import {Component, OnInit} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {HttpClient} from '@angular/common/http';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
 
 interface User {
   id: string;
@@ -35,19 +36,18 @@ interface Achievement {
   imports: [
     CommonModule,
     FormsModule,
-    RouterOutlet
   ],
   selector: 'app-comparison',
   templateUrl: './comparison.component.html',
   styleUrls: ['./comparison.component.scss']
 })
-export class AchievementComparisonComponent implements OnInit {
+export class ComparisonComponent implements OnInit {
   platform: string = 'Steam';
   users: User[] = [];
   searchQuery: string = '';
   searchResults: User[] = [];
   games: Game[] = [];
-  selectedGame: string | null = null;
+  selectedGame: string = '';
   achievements: Achievement[] = [];
   showOnlyMissing: boolean = false;
   showOnlyMissingAll: boolean = false;
@@ -58,7 +58,8 @@ export class AchievementComparisonComponent implements OnInit {
     private http: HttpClient,
     private route: ActivatedRoute,
     private router: Router
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     // Get URL parameters
@@ -67,11 +68,11 @@ export class AchievementComparisonComponent implements OnInit {
       if (params['users']) {
         const userIds = params['users'].split(',');
         // Load user details for each ID
-        userIds.forEach(id => this.loadUserDetails(id));
+        userIds.forEach((id: any) => this.loadUserDetails(id));
       }
       if (params['game']) {
         this.selectedGame = params['game'];
-        this.loadAchievements(this.selectedGame);
+        this.loadAchievements(this.selectedGame ?? '');
       }
       if (params['missing']) this.showOnlyMissing = params['missing'] === 'true';
       if (params['missingAll']) this.showOnlyMissingAll = params['missingAll'] === 'true';
@@ -116,9 +117,9 @@ export class AchievementComparisonComponent implements OnInit {
     // For demo purposes, we'll simulate an API call
     setTimeout(() => {
       this.searchResults = [
-        { id: 'user1', name: 'SteamUser1', avatar: 'https://via.placeholder.com/40' },
-        { id: 'user2', name: 'SteamFriend1', avatar: 'https://via.placeholder.com/40', isFriend: true },
-        { id: 'user3', name: 'RandomUser', avatar: 'https://via.placeholder.com/40' }
+        {id: 'user1', name: 'SteamUser1', avatar: 'https://via.placeholder.com/40'},
+        {id: 'user2', name: 'SteamFriend1', avatar: 'https://via.placeholder.com/40', isFriend: true},
+        {id: 'user3', name: 'RandomUser', avatar: 'https://via.placeholder.com/40'}
       ].filter(user => user.name.toLowerCase().includes(this.searchQuery.toLowerCase()));
       this.isSearching = false;
     }, 300);
@@ -148,7 +149,7 @@ export class AchievementComparisonComponent implements OnInit {
       this.loadCommonGames();
     } else {
       this.games = [];
-      this.selectedGame = null;
+      this.selectedGame = '';
       this.achievements = [];
     }
     this.updateUrlParams();
@@ -159,9 +160,9 @@ export class AchievementComparisonComponent implements OnInit {
     // For demo, we'll add placeholder games
     setTimeout(() => {
       this.games = [
-        { id: 'game1', name: 'Half-Life 2' },
-        { id: 'game2', name: 'Portal 2' },
-        { id: 'game3', name: 'Left 4 Dead 2' }
+        {id: 'game1', name: 'Half-Life 2'},
+        {id: 'game2', name: 'Portal 2'},
+        {id: 'game3', name: 'Left 4 Dead 2'}
       ];
     }, 300);
   }
@@ -187,8 +188,8 @@ export class AchievementComparisonComponent implements OnInit {
           description: 'Complete the tutorial',
           icon: 'https://via.placeholder.com/32',
           users: {
-            'user1': { achieved: true, unlockTime: '2023-01-15T12:30:00Z' },
-            'user2': { achieved: true, unlockTime: '2023-01-20T18:45:00Z' }
+            'user1': {achieved: true, unlockTime: '2023-01-15T12:30:00Z'},
+            'user2': {achieved: true, unlockTime: '2023-01-20T18:45:00Z'}
           }
         },
         {
@@ -197,8 +198,8 @@ export class AchievementComparisonComponent implements OnInit {
           description: 'Complete the game on hard difficulty',
           icon: 'https://via.placeholder.com/32',
           users: {
-            'user1': { achieved: true, unlockTime: '2023-02-10T20:15:00Z' },
-            'user2': { achieved: false }
+            'user1': {achieved: true, unlockTime: '2023-02-10T20:15:00Z'},
+            'user2': {achieved: false}
           }
         },
         {
@@ -207,8 +208,8 @@ export class AchievementComparisonComponent implements OnInit {
           description: 'Find all hidden items',
           icon: 'https://via.placeholder.com/32',
           users: {
-            'user1': { achieved: false },
-            'user2': { achieved: false }
+            'user1': {achieved: false},
+            'user2': {achieved: false}
           }
         }
       ];
