@@ -1,0 +1,236 @@
+<div class="container mx-auto px-4 py-8 max-w-6xl">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-8">
+    <h1 class="text-3xl font-bold text-gray-800">Achievement Comparison</h1>
+    <button
+      (click)="this.toggleSettings()"
+      class="p-2 rounded-full hover:bg-gray-200 transition-colors"
+      aria-label="Settings"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-settings">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Settings Modal -->
+  <div *ngIf="this.isSettingsOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold">Settings</h2>
+        <button (click)="this.toggleSettings()" class="text-gray-500 hover:text-gray-700">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="space-y-4">
+        <div class="flex items-center">
+          <input
+            type="checkbox"
+            id="missing-some"
+            [(ngModel)]="this.showOnlyMissing"
+            class="mr-2 h-4 w-4"
+          />
+          <label for="missing-some">Show only achievements at least one player is missing</label>
+        </div>
+        <div class="flex items-center">
+          <input
+            type="checkbox"
+            id="missing-all"
+            [(ngModel)]="this.showOnlyMissingAll"
+            class="mr-2 h-4 w-4"
+          />
+          <label for="missing-all">Show only achievements all players are missing</label>
+        </div>
+      </div>
+      <div class="mt-6 flex justify-end">
+        <button
+          (click)="this.updateSettings()"
+          class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+        >
+          Apply
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Platform Selection -->
+  <div class="mb-6">
+    <label for="platform" class="block text-sm font-medium text-gray-700 mb-1">
+      Platform
+    </label>
+    <select
+      id="platform"
+      [(ngModel)]="this.platform"
+      (change)="this.updateUrlParams()"
+      class="w-full md:w-64 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+    >
+      <option value="Steam">Steam</option>
+      <option value="PSN" disabled>PlayStation Network (Coming Soon)</option>
+      <option value="Xbox" disabled>Xbox (Coming Soon)</option>
+    </select>
+  </div>
+
+  <!-- User Selection -->
+  <div class="mb-8">
+    <label class="block text-sm font-medium text-gray-700 mb-1">
+      Users to Compare
+    </label>
+
+    <div class="flex flex-wrap gap-2 mb-4">
+      <div *ngFor="let user of this.users" class="flex items-center px-3 py-2 bg-blue-100 text-blue-800 rounded-md">
+        <img *ngIf="user.avatar" [src]="user.avatar" alt="" class="w-6 h-6 rounded-full mr-2">
+        <span class="mr-2">{{ user.name }}</span>
+        <button
+          (click)="this.removeUser(user.id)"
+          class="text-blue-600 hover:text-blue-800"
+          [attr.aria-label]="'Remove ' + user.name"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div *ngIf="this.users.length === 0" class="text-gray-500 italic">Add users to compare achievements</div>
+    </div>
+
+    <div class="relative">
+      <div class="flex">
+        <div class="relative flex-grow">
+          <input
+            type="text"
+            [(ngModel)]="this.searchQuery"
+            (ngModelChange)="this.handleSearchInput()"
+            placeholder="Search for a user"
+            class="w-full px-4 py-2 pl-10 border border-gray-300 rounded-l-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search text-gray-400">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
+        </div>
+        <button
+          class="px-4 py-2 bg-blue-600 text-white rounded-r-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-blue-300"
+          [disabled]="this.searchQuery.length < 3"
+          (click)="this.searchUsers()"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Search Results Dropdown -->
+      <div *ngIf="this.searchResults.length > 0" class="absolute z-10 w-full mt-1 bg-white shadow-lg rounded-md border border-gray-200 max-h-60 overflow-auto">
+        <div
+          *ngFor="let user of this.searchResults"
+          (click)="this.addUser(user)"
+          class="flex items-center p-3 hover:bg-gray-100 cursor-pointer"
+        >
+          <img *ngIf="user.avatar" [src]="user.avatar" alt="" class="w-8 h-8 rounded-full mr-3">
+          <svg *ngIf="!user.avatar" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user text-gray-400 mr-3">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <div>
+            <div class="font-medium">{{ user.name }}</div>
+            <div *ngIf="user.isFriend" class="text-xs text-green-600">Friend</div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="this.isSearching" class="text-sm text-gray-500 mt-1">Searching...</div>
+
+      <div *ngIf="this.searchQuery.length > 2 && this.searchResults.length === 0 && !this.isSearching" class="text-sm text-gray-500 mt-1">No users found</div>
+    </div>
+  </div>
+
+  <!-- Game Selection - Only show if users are selected -->
+  <div *ngIf="this.users.length > 0" class="mb-8">
+    <label for="game" class="block text-sm font-medium text-gray-700 mb-1">
+      Select Game
+    </label>
+    <select
+      *ngIf="this.games.length > 0; else loadingGames"
+      id="game"
+      [(ngModel)]="this.selectedGame"
+      (change)="this.selectGame(selectedGame)"
+      class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+    >
+      <option [ngValue]="null">-- Select a game --</option>
+      <option *ngFor="let game of this.games" [value]="game.id">{{ game.name }}</option>
+    </select>
+    <ng-template #loadingGames>
+      <div class="text-gray-500 italic">Loading common games...</div>
+    </ng-template>
+  </div>
+
+  <!-- Achievements List -->
+  <div *ngIf="this.selectedGame && this.achievements.length > 0">
+    <h2 class="text-2xl font-bold mb-4">Achievements</h2>
+
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+      <div class="grid grid-cols-[auto_1fr_repeat(auto-fill,minmax(120px,1fr))] gap-4 p-4 bg-gray-100 font-medium">
+        <div></div>
+        <div>Achievement</div>
+        <div *ngFor="let user of this.users" class="text-center truncate">
+          {{ user.name }}
+        </div>
+      </div>
+
+      <ng-container *ngIf="this.filteredAchievements.length > 0; else noMatchingAchievements">
+        <div
+          *ngFor="let achievement of this.filteredAchievements"
+          class="grid grid-cols-[auto_1fr_repeat(auto-fill,minmax(120px,1fr))] gap-4 p-4 border-t border-gray-200 items-center"
+        >
+          <div>
+            <img
+              [src]="achievement.icon"
+              alt=""
+              class="w-8 h-8"
+            />
+          </div>
+          <div>
+            <div class="font-medium">{{ achievement.name }}</div>
+            <div class="text-sm text-gray-600">{{ achievement.description }}</div>
+          </div>
+
+          <div *ngFor="let user of this.users" class="text-center">
+            <ng-container *ngIf="achievement.users[user.id]?.achieved; else notAchieved">
+              <div class="text-green-600 font-medium">✓</div>
+              <div *ngIf="achievement.users[user.id]?.unlockTime" class="text-xs text-gray-500">
+                {{ achievement.users[user.id]?.unlockTime | date:'shortDate' }}
+              </div>
+              <div *ngIf="this.getFirstAchiever(achievement) === user.id" class="text-xs text-blue-600 font-medium mt-1">
+                First!
+              </div>
+              <div *ngIf="this.getFirstAchiever(achievement) && this.getFirstAchiever(achievement) !== user.id && achievement.users[this.getFirstAchiever(achievement)]?.achieved && achievement.users[user.id]?.unlockTime && achievement.users[this.getFirstAchiever(achievement)]?.unlockTime" class="text-xs text-gray-500 mt-1">
+                +{{ this.formatTimeDifference(
+                achievement.users[user.id]?.unlockTime,
+                achievement.users[this.getFirstAchiever(achievement)]?.unlockTime
+              ) }}
+              </div>
+            </ng-container>
+            <ng-template #notAchieved>
+              <div class="text-red-500">✗</div>
+            </ng-template>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-template #noMatchingAchievements>
+        <div class="p-8 text-center text-gray-500">
+          No achievements match your filter settings
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</div>
