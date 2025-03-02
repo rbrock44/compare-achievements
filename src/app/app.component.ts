@@ -1,9 +1,13 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { ComparisonComponent } from './components/comparison/comparison.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [
+    ComparisonComponent,
+    RouterOutlet
+  ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })

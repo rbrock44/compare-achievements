@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 
@@ -30,9 +31,15 @@ interface Achievement {
 }
 
 @Component({
-  selector: 'app-achievement-comparison',
-  templateUrl: './achievement-comparison.component.html',
-  styleUrls: ['./achievement-comparison.component.scss']
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterOutlet
+  ],
+  selector: 'app-comparison',
+  templateUrl: './comparison.component.html',
+  styleUrls: ['./comparison.component.scss']
 })
 export class AchievementComparisonComponent implements OnInit {
   platform: string = 'Steam';
@@ -73,13 +80,13 @@ export class AchievementComparisonComponent implements OnInit {
 
   updateUrlParams(): void {
     const queryParams: any = {};
-    
+
     queryParams.platform = this.platform;
     if (this.users.length > 0) queryParams.users = this.users.map(u => u.id).join(',');
     if (this.selectedGame) queryParams.game = this.selectedGame;
     if (this.showOnlyMissing) queryParams.missing = 'true';
     if (this.showOnlyMissingAll) queryParams.missingAll = 'true';
-    
+
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams,
@@ -94,7 +101,7 @@ export class AchievementComparisonComponent implements OnInit {
       id: userId,
       name: userId // In real app, get actual name from API
     });
-    
+
     if (this.users.length > 0) {
       this.loadCommonGames();
     }
@@ -102,9 +109,9 @@ export class AchievementComparisonComponent implements OnInit {
 
   searchUsers(): void {
     if (this.searchQuery.length < 3) return;
-    
+
     this.isSearching = true;
-    
+
     // In a real app, call your Steam API
     // For demo purposes, we'll simulate an API call
     setTimeout(() => {
@@ -174,30 +181,30 @@ export class AchievementComparisonComponent implements OnInit {
     // For demo, we'll add placeholder achievements
     setTimeout(() => {
       this.achievements = [
-        { 
-          id: 'ach1', 
-          name: 'First Steps', 
-          description: 'Complete the tutorial', 
+        {
+          id: 'ach1',
+          name: 'First Steps',
+          description: 'Complete the tutorial',
           icon: 'https://via.placeholder.com/32',
           users: {
             'user1': { achieved: true, unlockTime: '2023-01-15T12:30:00Z' },
             'user2': { achieved: true, unlockTime: '2023-01-20T18:45:00Z' }
           }
         },
-        { 
-          id: 'ach2', 
-          name: 'Expert Mode', 
-          description: 'Complete the game on hard difficulty', 
+        {
+          id: 'ach2',
+          name: 'Expert Mode',
+          description: 'Complete the game on hard difficulty',
           icon: 'https://via.placeholder.com/32',
           users: {
             'user1': { achieved: true, unlockTime: '2023-02-10T20:15:00Z' },
             'user2': { achieved: false }
           }
         },
-        { 
-          id: 'ach3', 
-          name: 'Collector', 
-          description: 'Find all hidden items', 
+        {
+          id: 'ach3',
+          name: 'Collector',
+          description: 'Find all hidden items',
           icon: 'https://via.placeholder.com/32',
           users: {
             'user1': { achieved: false },
@@ -221,15 +228,15 @@ export class AchievementComparisonComponent implements OnInit {
   get filteredAchievements(): Achievement[] {
     return this.achievements.filter(achievement => {
       if (!this.showOnlyMissing && !this.showOnlyMissingAll) return true;
-      
+
       if (this.showOnlyMissingAll) {
         return Object.values(achievement.users).every(u => !u.achieved);
       }
-      
+
       if (this.showOnlyMissing) {
         return Object.values(achievement.users).some(u => !u.achieved);
       }
-      
+
       return true;
     });
   }
@@ -242,7 +249,7 @@ export class AchievementComparisonComponent implements OnInit {
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
     const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-    
+
     if (diffDays > 0) {
       return `${diffDays}d ${diffHours}h`;
     } else if (diffHours > 0) {
@@ -260,7 +267,7 @@ export class AchievementComparisonComponent implements OnInit {
         if (!data1.unlockTime || !data2.unlockTime) return 0;
         return new Date(data1.unlockTime).getTime() - new Date(data2.unlockTime).getTime();
       });
-    
+
     return achieved.length > 0 ? achieved[0][0] : null;
   }
 }
