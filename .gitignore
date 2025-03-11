@@ -43,5 +43,6 @@ Thumbs.db
 
 # Environment secrets
 /src/environments/environment.secrets.ts
+src/environments/environment.secrets.ts
 .env
 .env.local

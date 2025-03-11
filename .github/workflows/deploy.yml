@@ -25,6 +25,11 @@ jobs:
     - name: Configure npm Authentication
       run: echo "//registry.npmjs.org/:_authToken=${{ secrets.GITHUB_TOKEN }}" > ~/.npmrc
 
+    - name: Create Environment File
+      run: |
+        # Create .env file with secrets
+        echo "STEAM_API_KEY=${{ secrets.STEAM_API_KEY }}" > .env
+
     - name: Build Project
       run: npm run deploy
 
@@ -33,7 +38,7 @@ jobs:
         cp CNAME ./dist/compare-achievements/browser/CNAME
 
     - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
+      uses: JamesIves/github-pages-deploy-action@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./dist/compare-achievements/browser
