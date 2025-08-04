@@ -38,6 +38,8 @@ This is a server side single-page angular frontend created to help compare multi
 * Install [node](https://nodejs.org/en) - v19 is needed (v22 also works)
 * Clone [repo](https://github.com/rbrock44/compare-achievements)
 
+---
+
 ### Run Locally
 
 ```
