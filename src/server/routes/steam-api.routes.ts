@@ -7,7 +7,7 @@ const steamService = new SteamApiService();
 // Search for users
 router.get('/search', async (req: Request, res: Response) => {
   try {
-    const query = req.query.q as string;
+    const query = req.query['q'] as string;
 
     if (!query || query.length < 3) {
       return res.status(400).json({ success: false, error: 'Search query must be at least 3 characters' });
@@ -24,7 +24,7 @@ router.get('/search', async (req: Request, res: Response) => {
 // Get player details
 router.get('/players', async (req: Request, res: Response) => {
   try {
-    const steamIds = (req.query.ids as string).split(',');
+    const steamIds = (req.query['ids'] as string).split(',');
 
     if (!steamIds || steamIds.length === 0) {
       return res.status(400).json({ success: false, error: 'No Steam IDs provided' });
@@ -58,7 +58,7 @@ router.get('/games/:steamId', async (req: Request, res: Response) => {
 // Get common games
 router.get('/common-games', async (req: Request, res: Response) => {
   try {
-    const steamIds = (req.query.ids as string).split(',');
+    const steamIds = (req.query['ids'] as string).split(',');
 
     if (!steamIds || steamIds.length === 0) {
       return res.status(400).json({ success: false, error: 'No Steam IDs provided' });

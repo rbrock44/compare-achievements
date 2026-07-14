@@ -207,7 +207,7 @@
             <ng-container *ngIf="achievement.users[user.id]?.achieved; else notAchieved">
               <div class="text-green-600 font-medium">✓</div>
               <div *ngIf="achievement.users[user.id]?.unlockTime" class="text-xs text-gray-500">
-                {{ achievement.users[user.id]?.unlockTime | date:'shortDate' }}
+                {{ achievement.users[user.id].unlockTime | date:'shortDate' }}
               </div>
             </ng-container>
             <ng-template #notAchieved>

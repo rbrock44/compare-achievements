@@ -1,11 +1,12 @@
 import axios from 'axios';
 import * as dotenv from 'dotenv';
 import { Request, Response } from 'express';
+import {Game} from '../../app/models/game.interface';
 
 // Load environment variables from .env file (for server-side)
 dotenv.config();
 
-const STEAM_API_KEY = process.env.STEAM_API_KEY;
+const STEAM_API_KEY = process.env['STEAM_API_KEY'];
 const STEAM_API_BASE_URL = 'https://api.steampowered.com';
 
 if (!STEAM_API_KEY) {
@@ -15,21 +16,36 @@ if (!STEAM_API_KEY) {
 export class SteamApiService {
 
   /**
-   * Search for Steam users by username
+   * Resolve a Steam user by SteamID64 or vanity URL name.
+   * The Steam Web API has no free-text username search, so this resolves
+   * a single exact match: a 17-digit SteamID64 is used directly, otherwise
+   * the query is treated as a vanity URL name and resolved first.
    */
   async searchUsers(query: string) {
     try {
-      // Note: Steam Web API doesn't have a direct search by username endpoint
-      // This would typically use a community search or a database of known users
-      // For demonstration, we could return dummy data or use a Steam community search
+      let steamId = query;
 
-      // In a real implementation, you might use:
-      // - Steam community search scraping (not ideal but possible)
-      // - Your own database of users
-      // - Steam ID resolution if the user enters a valid Steam ID/URL
+      if (!/^\d{17}$/.test(query)) {
+        const resolveResponse = await axios.get(`${STEAM_API_BASE_URL}/ISteamUser/ResolveVanityURL/v1/`, {
+          params: {
+            key: STEAM_API_KEY,
+            vanityurl: query
+          }
+        });
 
-      // For now, return a mock response
-      return { success: true, results: [] };
+        if (resolveResponse.data.response.success !== 1) {
+          return { success: true, results: [] };
+        }
+
+        steamId = resolveResponse.data.response.steamid;
+      }
+
+      const summaries = await this.getPlayerSummaries([steamId]);
+      if (!summaries.success) {
+        return { success: true, results: [] };
+      }
+
+      return { success: true, results: summaries.players };
     } catch (error) {
       console.error('Error searching for Steam users:', error);
       return { success: false, error: 'Failed to search for users' };
@@ -69,7 +85,15 @@ export class SteamApiService {
         }
       });
 
-      return { success: true, games: response.data.response.games || [] };
+      const rawGames = response.data.response.games || [];
+      const games: Game[] = rawGames.map((g: any) => ({
+        id: g.appid.toString(),
+        name: g.name,
+        imgIconUrl: g.img_icon_url,
+        playtimeForever: g.playtime_forever
+      }));
+
+      return { success: true, games };
     } catch (error) {
       console.error('Error getting owned games:', error);
       return { success: false, error: 'Failed to get games list' };
@@ -173,15 +197,15 @@ export class SteamApiService {
       }
 
       // Extract game lists
-      const gameLists = results.map(result => result.games);
+      const gameLists: Game[][] = results.map(result => result.games || []);
 
       // Find common games (intersection of all game lists)
-      let commonGames = gameLists[0];
+      let commonGames: Game[] = gameLists[0] || [];
 
       for (let i = 1; i < gameLists.length; i++) {
-        const currentGames = gameLists[i];
-        commonGames = commonGames.filter(game =>
-          currentGames.some(g => g.appid === game.appid)
+        const currentGames = gameLists[i] || [];
+        commonGames = commonGames.filter((game: Game) =>
+          currentGames.some((g: Game) => g.id === game.id)
         );
       }
 

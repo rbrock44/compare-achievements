@@ -1,4 +1,4 @@
-import * as express from 'express';
+import express from 'express';
 import * as path from 'path';
 import * as dotenv from 'dotenv';
 import steamRoutes from './routes/steam-api.routes';
@@ -8,10 +8,10 @@ import { Request, Response } from 'express';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 4000;
+const PORT = process.env['PORT'] || 4000;
 
 // Check for API key
-if (!process.env.STEAM_API_KEY) {
+if (!process.env['STEAM_API_KEY']) {
   console.error('WARNING: STEAM_API_KEY environment variable is not set.');
 }
 

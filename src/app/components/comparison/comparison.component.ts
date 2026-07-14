@@ -3,18 +3,11 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {HttpClient} from '@angular/common/http';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-
-interface User {
-  id: string;
-  name: string;
-  avatar?: string;
-  isFriend?: boolean;
-}
-
-interface Game {
-  id: string;
-  name: string;
-}
+import {forkJoin, of} from 'rxjs';
+import {catchError} from 'rxjs/operators';
+import {SteamApiService} from '../../services/steam-api.service';
+import {User} from '../../models/user.interface';
+import {Game} from '../../models/game.interface';
 
 interface AchievementUserData {
   achieved: boolean;
@@ -39,7 +32,10 @@ interface Achievement {
   ],
   selector: 'app-comparison',
   templateUrl: './comparison.component.html',
-  styleUrls: ['./comparison.component.scss']
+  styleUrls: ['./comparison.component.scss'],
+  providers: [
+    SteamApiService
+  ]
 })
 export class ComparisonComponent implements OnInit {
   platform: string = 'Steam';
@@ -55,9 +51,9 @@ export class ComparisonComponent implements OnInit {
   isSettingsOpen: boolean = false;
 
   constructor(
-    private http: HttpClient,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private steamService: SteamApiService
   ) {
   }
 
@@ -96,16 +92,15 @@ export class ComparisonComponent implements OnInit {
   }
 
   loadUserDetails(userId: string): void {
-    // In a real app, call your API to get user details
-    // For demo, we'll add a placeholder user
-    this.users.push({
-      id: userId,
-      name: userId // In real app, get actual name from API
+    this.steamService.getPlayerSummaries([userId]).subscribe(users => {
+      const user = users[0] ?? { id: userId, name: userId };
+      if (!this.users.some(u => u.id === user.id)) {
+        this.users.push(user);
+      }
+      if (this.users.length > 0) {
+        this.loadCommonGames();
+      }
     });
-
-    if (this.users.length > 0) {
-      this.loadCommonGames();
-    }
   }
 
   searchUsers(): void {
@@ -113,16 +108,13 @@ export class ComparisonComponent implements OnInit {
 
     this.isSearching = true;
 
-    // In a real app, call your Steam API
-    // For demo purposes, we'll simulate an API call
-    setTimeout(() => {
-      this.searchResults = [
-        {id: 'user1', name: 'SteamUser1', avatar: 'https://via.placeholder.com/40'},
-        {id: 'user2', name: 'SteamFriend1', avatar: 'https://via.placeholder.com/40', isFriend: true},
-        {id: 'user3', name: 'RandomUser', avatar: 'https://via.placeholder.com/40'}
-      ].filter(user => user.name.toLowerCase().includes(this.searchQuery.toLowerCase()));
-      this.isSearching = false;
-    }, 300);
+    this.steamService.searchUsers(this.searchQuery.toLowerCase()).subscribe({
+      next: users => {
+        this.searchResults = users;
+        this.isSearching = false;
+      },
+      error: () => this.isSearching = false
+    });
   }
 
   handleSearchInput(): void {
@@ -156,15 +148,9 @@ export class ComparisonComponent implements OnInit {
   }
 
   loadCommonGames(): void {
-    // In a real app, call your API to get common games
-    // For demo, we'll add placeholder games
-    setTimeout(() => {
-      this.games = [
-        {id: 'game1', name: 'Half-Life 2'},
-        {id: 'game2', name: 'Portal 2'},
-        {id: 'game3', name: 'Left 4 Dead 2'}
-      ];
-    }, 300);
+    this.steamService.getCommonGames(this.users.map(x => x.id)).subscribe(commonGames => {
+      this.games = commonGames;
+    });
   }
 
   selectGame(gameId: string): void {
@@ -178,42 +164,39 @@ export class ComparisonComponent implements OnInit {
   }
 
   loadAchievements(gameId: string): void {
-    // In a real app, call your API to get achievements
-    // For demo, we'll add placeholder achievements
-    setTimeout(() => {
-      this.achievements = [
-        {
-          id: 'ach1',
-          name: 'First Steps',
-          description: 'Complete the tutorial',
-          icon: 'https://via.placeholder.com/32',
-          users: {
-            'user1': {achieved: true, unlockTime: '2023-01-15T12:30:00Z'},
-            'user2': {achieved: true, unlockTime: '2023-01-20T18:45:00Z'}
-          }
-        },
-        {
-          id: 'ach2',
-          name: 'Expert Mode',
-          description: 'Complete the game on hard difficulty',
-          icon: 'https://via.placeholder.com/32',
-          users: {
-            'user1': {achieved: true, unlockTime: '2023-02-10T20:15:00Z'},
-            'user2': {achieved: false}
-          }
-        },
-        {
-          id: 'ach3',
-          name: 'Collector',
-          description: 'Find all hidden items',
-          icon: 'https://via.placeholder.com/32',
-          users: {
-            'user1': {achieved: false},
-            'user2': {achieved: false}
-          }
-        }
-      ];
-    }, 300);
+    const appId = +gameId;
+
+    this.steamService.getGameSchema(appId).subscribe(schema => {
+      const achievementCalls = this.users.map(user =>
+        this.steamService.getPlayerAchievements(user.id, appId).pipe(
+          catchError(() => of(null))
+        )
+      );
+
+      forkJoin(achievementCalls.length ? achievementCalls : [of(null)]).subscribe(results => {
+        this.achievements = schema.achievements.map(def => {
+          const usersData: { [userId: string]: AchievementUserData } = {};
+
+          this.users.forEach((user, index) => {
+            const userResult = results[index];
+            const match = userResult?.achievements.find(a => a.apiname === def.name);
+
+            usersData[user.id] = {
+              achieved: match ? match.achieved === 1 : false,
+              unlockTime: match?.unlocktime ? new Date(match.unlocktime * 1000).toISOString() : undefined
+            };
+          });
+
+          return {
+            id: def.name,
+            name: def.displayName || def.name,
+            description: def.description ?? '',
+            icon: def.icon,
+            users: usersData
+          };
+        });
+      });
+    });
   }
 
   toggleSettings(): void {
