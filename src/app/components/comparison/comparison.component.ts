@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {HttpClient} from '@angular/common/http';
 import {CommonModule} from '@angular/common';
@@ -39,6 +39,8 @@ interface Achievement {
   ]
 })
 export class ComparisonComponent implements OnInit {
+  @ViewChild('userSearchInput') userSearchInput?: ElementRef<HTMLInputElement>;
+
   platform: string = 'Steam';
   users: User[] = [];
   searchQuery: string = '';
@@ -199,6 +201,8 @@ export class ComparisonComponent implements OnInit {
       this.users.push(user);
       this.searchQuery = '';
       this.searchResults = [];
+      this.isGameDropdownOpen = false;
+      this.userSearchInput?.nativeElement.blur();
       this.loadFriends(user.id);
       this.loadCommonGames();
       this.updateUrlParams();
