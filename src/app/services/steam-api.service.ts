@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, map, of, switchMap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { User } from '../models/user.interface';
 import { Game } from '../models/game.interface';
@@ -77,9 +77,13 @@ export class SteamApiService {
     );
   }
 
-  getFriendsList(steamId: string): Observable<any[]> {
-    return this.http.get<ApiResult<{ friends: any[] }>>(`${this.apiUrl}/friends/${steamId}`).pipe(
-      map(res => (res.success ? (res['friends'] as any[]) : []))
+  getFriendsList(steamId: string): Observable<User[]> {
+    return this.http.get<ApiResult<{ friends: { steamid: string }[] }>>(`${this.apiUrl}/friends/${steamId}`).pipe(
+      switchMap(res => {
+        if (!res.success || !(res['friends'] as { steamid: string }[])?.length) return of([]);
+        const friendIds = (res['friends'] as { steamid: string }[]).map(f => f.steamid);
+        return this.getPlayerSummaries(friendIds);
+      })
     );
   }
 }

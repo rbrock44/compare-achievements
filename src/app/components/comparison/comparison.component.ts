@@ -42,6 +42,7 @@ export class ComparisonComponent implements OnInit {
   users: User[] = [];
   searchQuery: string = '';
   searchResults: User[] = [];
+  friendsCache: User[] = [];
   games: Game[] = [];
   selectedGame: string = '';
   achievements: Achievement[] = [];
@@ -94,12 +95,23 @@ export class ComparisonComponent implements OnInit {
   loadUserDetails(userId: string): void {
     this.steamService.getPlayerSummaries([userId]).subscribe(users => {
       const user = users[0] ?? { id: userId, name: userId };
+      const wasEmpty = this.users.length === 0;
       if (!this.users.some(u => u.id === user.id)) {
         this.users.push(user);
+      }
+      if (wasEmpty) {
+        this.loadFriends(user.id);
       }
       if (this.users.length > 0) {
         this.loadCommonGames();
       }
+    });
+  }
+
+  loadFriends(userId: string): void {
+    this.steamService.getFriendsList(userId).subscribe({
+      next: friends => this.friendsCache = friends,
+      error: () => this.friendsCache = []
     });
   }
 
@@ -120,29 +132,56 @@ export class ComparisonComponent implements OnInit {
   handleSearchInput(): void {
     if (this.searchQuery.length > 2) {
       this.searchUsers();
+    } else if (this.searchQuery.length === 0) {
+      this.showFriendSuggestions();
     } else {
       this.searchResults = [];
     }
   }
 
+  onSearchFocus(): void {
+    if (this.searchQuery.length === 0) {
+      this.showFriendSuggestions();
+    }
+  }
+
+  onSearchBlur(): void {
+    this.searchResults = [];
+  }
+
+  showFriendSuggestions(): void {
+    this.searchResults = this.users.length > 0
+      ? this.friendsCache.filter(friend => !this.users.some(u => u.id === friend.id))
+      : [];
+  }
+
   addUser(user: User): void {
     if (!this.users.some(u => u.id === user.id)) {
+      const wasEmpty = this.users.length === 0;
       this.users.push(user);
       this.searchQuery = '';
       this.searchResults = [];
+      if (wasEmpty) {
+        this.loadFriends(user.id);
+      }
       this.loadCommonGames();
       this.updateUrlParams();
     }
   }
 
   removeUser(userId: string): void {
+    const wasFirstUser = this.users[0]?.id === userId;
     this.users = this.users.filter(u => u.id !== userId);
     if (this.users.length > 0) {
       this.loadCommonGames();
+      if (wasFirstUser) {
+        this.loadFriends(this.users[0].id);
+      }
     } else {
       this.games = [];
       this.selectedGame = '';
       this.achievements = [];
+      this.friendsCache = [];
     }
     this.updateUrlParams();
   }

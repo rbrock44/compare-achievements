@@ -128,6 +128,15 @@ export class SteamApiService {
         gameName: response.data.playerstats.gameName
       };
     } catch (error) {
+      // Steam returns an HTTP 403 (instead of a 200 with playerstats.success=false)
+      // when the profile or that game's stats are private, so handle it explicitly here.
+      if (axios.isAxiosError(error) && error.response?.status === 403) {
+        return {
+          success: false,
+          error: 'Profile is private or game details are not public for this user'
+        };
+      }
+
       console.error('Error getting player achievements:', error);
       return { success: false, error: 'Failed to get achievements' };
     }
