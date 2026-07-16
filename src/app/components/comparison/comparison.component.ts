@@ -6,6 +6,7 @@ import {FormsModule} from '@angular/forms';
 import {forkJoin, of} from 'rxjs';
 import {catchError} from 'rxjs/operators';
 import {SteamApiService} from '../../services/steam-api.service';
+import {ThemeService, Theme} from '../../services/theme.service';
 import {User} from '../../models/user.interface';
 import {Game} from '../../models/game.interface';
 
@@ -44,6 +45,8 @@ export class ComparisonComponent implements OnInit {
   searchResults: User[] = [];
   friendsCache: User[] = [];
   games: Game[] = [];
+  gameSearchQuery: string = '';
+  isGameDropdownOpen: boolean = false;
   selectedGame: string = '';
   achievements: Achievement[] = [];
   showOnlyMissing: boolean = false;
@@ -54,8 +57,17 @@ export class ComparisonComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private steamService: SteamApiService
+    private steamService: SteamApiService,
+    public themeService: ThemeService
   ) {
+  }
+
+  get theme(): Theme {
+    return this.themeService.theme;
+  }
+
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
   }
 
   ngOnInit(): void {
@@ -95,11 +107,8 @@ export class ComparisonComponent implements OnInit {
   loadUserDetails(userId: string): void {
     this.steamService.getPlayerSummaries([userId]).subscribe(users => {
       const user = users[0] ?? { id: userId, name: userId };
-      const wasEmpty = this.users.length === 0;
       if (!this.users.some(u => u.id === user.id)) {
         this.users.push(user);
-      }
-      if (wasEmpty) {
         this.loadFriends(user.id);
       }
       if (this.users.length > 0) {
@@ -110,19 +119,46 @@ export class ComparisonComponent implements OnInit {
 
   loadFriends(userId: string): void {
     this.steamService.getFriendsList(userId).subscribe({
-      next: friends => this.friendsCache = friends,
-      error: () => this.friendsCache = []
+      next: friends => this.mergeFriends(friends),
+      error: () => {}
     });
+  }
+
+  // Merge newly-loaded friends into the shared friends list, avoiding duplicates
+  private mergeFriends(friends: User[]): void {
+    const existingIds = new Set(this.friendsCache.map(f => f.id));
+    const newFriends = friends.filter(f => !existingIds.has(f.id));
+    if (newFriends.length > 0) {
+      this.friendsCache = [...this.friendsCache, ...newFriends];
+    }
+  }
+
+  // Rebuild the friends list from scratch for all currently added users
+  private reloadAllFriends(): void {
+    this.friendsCache = [];
+    this.users.forEach(u => this.loadFriends(u.id));
+  }
+
+  // Friends already in the cache whose name matches the search query
+  private getMatchingFriends(query: string): User[] {
+    return this.friendsCache.filter(f =>
+      !this.users.some(u => u.id === f.id) &&
+      f.name.toLowerCase().includes(query)
+    );
   }
 
   searchUsers(): void {
     if (this.searchQuery.length < 3) return;
 
     this.isSearching = true;
+    const query = this.searchQuery.toLowerCase();
+    const friendMatches = this.getMatchingFriends(query);
 
-    this.steamService.searchUsers(this.searchQuery.toLowerCase()).subscribe({
+    this.steamService.searchUsers(query).subscribe({
       next: users => {
-        this.searchResults = users;
+        const knownIds = new Set([...friendMatches.map(f => f.id), ...this.users.map(u => u.id)]);
+        const steamMatches = users.filter(u => !knownIds.has(u.id));
+        this.searchResults = [...friendMatches, ...steamMatches];
         this.isSearching = false;
       },
       error: () => this.isSearching = false
@@ -130,12 +166,15 @@ export class ComparisonComponent implements OnInit {
   }
 
   handleSearchInput(): void {
+    if (this.searchQuery.length === 0) {
+      this.showFriendSuggestions();
+      return;
+    }
+
+    this.searchResults = this.getMatchingFriends(this.searchQuery.toLowerCase());
+
     if (this.searchQuery.length > 2) {
       this.searchUsers();
-    } else if (this.searchQuery.length === 0) {
-      this.showFriendSuggestions();
-    } else {
-      this.searchResults = [];
     }
   }
 
@@ -157,26 +196,20 @@ export class ComparisonComponent implements OnInit {
 
   addUser(user: User): void {
     if (!this.users.some(u => u.id === user.id)) {
-      const wasEmpty = this.users.length === 0;
       this.users.push(user);
       this.searchQuery = '';
       this.searchResults = [];
-      if (wasEmpty) {
-        this.loadFriends(user.id);
-      }
+      this.loadFriends(user.id);
       this.loadCommonGames();
       this.updateUrlParams();
     }
   }
 
   removeUser(userId: string): void {
-    const wasFirstUser = this.users[0]?.id === userId;
     this.users = this.users.filter(u => u.id !== userId);
     if (this.users.length > 0) {
       this.loadCommonGames();
-      if (wasFirstUser) {
-        this.loadFriends(this.users[0].id);
-      }
+      this.reloadAllFriends();
     } else {
       this.games = [];
       this.selectedGame = '';
@@ -188,12 +221,45 @@ export class ComparisonComponent implements OnInit {
 
   loadCommonGames(): void {
     this.steamService.getCommonGames(this.users.map(x => x.id)).subscribe(commonGames => {
-      this.games = commonGames;
+      this.games = [...commonGames].sort((a, b) => a.name.localeCompare(b.name));
+      this.syncGameSearchQueryWithSelection();
     });
+  }
+
+  // Games filtered by the search query, kept in alphabetical order
+  get filteredGames(): Game[] {
+    const query = this.gameSearchQuery.trim().toLowerCase();
+    if (!query) return this.games;
+    return this.games.filter(game => game.name.toLowerCase().includes(query));
+  }
+
+  onGameSearchFocus(): void {
+    this.isGameDropdownOpen = true;
+  }
+
+  onGameSearchBlur(): void {
+    this.isGameDropdownOpen = false;
+    // Restore the text box to reflect the current selection if the user
+    // clicked away without picking one of the filtered options
+    this.syncGameSearchQueryWithSelection();
+  }
+
+  private syncGameSearchQueryWithSelection(): void {
+    const game = this.games.find(g => g.id === this.selectedGame);
+    this.gameSearchQuery = game ? game.name : '';
+  }
+
+  clearGameSearch(): void {
+    this.gameSearchQuery = '';
+    this.selectedGame = '';
+    this.achievements = [];
+    this.isGameDropdownOpen = true;
   }
 
   selectGame(gameId: string): void {
     this.selectedGame = gameId;
+    this.isGameDropdownOpen = false;
+    this.syncGameSearchQueryWithSelection();
     if (gameId) {
       this.loadAchievements(gameId);
     } else {

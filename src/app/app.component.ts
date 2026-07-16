@@ -1,6 +1,7 @@
 import {Component} from '@angular/core';
 import {ComparisonComponent} from './components/comparison/comparison.component';
 import {RouterOutlet} from '@angular/router';
+import {ThemeService} from './services/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -14,4 +15,9 @@ import {RouterOutlet} from '@angular/router';
 })
 export class AppComponent {
   title = 'compare-achievements';
+
+  // Injecting ThemeService here instantiates it as soon as the app loads,
+  // applying the persisted (or default dark) theme before the UI renders.
+  constructor(private themeService: ThemeService) {
+  }
 }

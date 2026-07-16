@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: compare-achievements-api
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: node dist/compare-achievements/server/server.mjs
+    envVars:
+      - key: STEAM_API_KEY
+        sync: false # set the real value in the Render dashboard, never commit it
+      - key: ALLOWED_ORIGINS
+        value: https://compare-achievements.ryan-brock.com
+      - key: NODE_VERSION
+        value: 22

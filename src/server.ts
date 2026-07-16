@@ -4,6 +4,7 @@ import {
   isMainModule,
   writeResponseToNodeResponse,
 } from '@angular/ssr/node';
+import cors from 'cors';
 import express from 'express';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,9 +17,15 @@ const app = express();
 const angularApp = new AngularNodeAppEngine();
 
 /**
- * Steam API proxy endpoints (keeps the Steam Web API key server-side only).
+ * The GitHub Pages site is a static build with no server of its own, so it calls
+ * this API over a different origin. Only that origin (plus local dev) may call it,
+ * so a third party site can't ride on our Steam API key/quota.
  */
-app.use('/api/steam', steamApiRoutes);
+const allowedOrigins = (process.env['ALLOWED_ORIGINS'] || 'http://localhost:4200')
+  .split(',')
+  .map(origin => origin.trim());
+
+app.use('/api/steam', cors({ origin: allowedOrigins }), steamApiRoutes);
 
 /**
  * Serve static files from /browser
