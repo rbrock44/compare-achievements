@@ -7,27 +7,31 @@
         (click)="this.toggleTheme()"
         class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
         [attr.aria-label]="this.theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
-      >
-        <svg *ngIf="this.theme === 'dark'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-sun text-gray-100">
-          <circle cx="12" cy="12" r="5"></circle>
-          <line x1="12" y1="1" x2="12" y2="3"></line>
-          <line x1="12" y1="21" x2="12" y2="23"></line>
-          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-          <line x1="1" y1="12" x2="3" y2="12"></line>
-          <line x1="21" y1="12" x2="23" y2="12"></line>
-          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-        </svg>
-        <svg *ngIf="this.theme === 'light'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-moon text-gray-800">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-        </svg>
+        >
+        @if (this.theme === 'dark') {
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-sun text-gray-100">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        }
+        @if (this.theme === 'light') {
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-moon text-gray-800">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        }
       </button>
       <button
         (click)="this.toggleSettings()"
         class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
         aria-label="Settings"
-      >
+        >
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-settings text-gray-800 dark:text-gray-100">
           <circle cx="12" cy="12" r="3"></circle>
           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
@@ -37,319 +41,355 @@
   </div>
 
   <!-- Settings Modal -->
-  <div *ngIf="this.isSettingsOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-full sm:w-fit sm:max-w-2xl mx-4">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Settings</h2>
-        <button (click)="this.toggleSettings()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
-      </div>
-      <div class="space-y-4 text-gray-900 dark:text-gray-100">
-        <div class="flex items-center">
-          <input
-            type="checkbox"
-            id="missing-some"
-            [(ngModel)]="this.showOnlyMissing"
-            class="mr-2 h-4 w-4"
-          />
-          <label for="missing-some" class="sm:whitespace-nowrap">Show only achievements at least one player is missing</label>
-        </div>
-        <div class="flex items-center">
-          <input
-            type="checkbox"
-            id="missing-all"
-            [(ngModel)]="this.showOnlyMissingAll"
-            class="mr-2 h-4 w-4"
-          />
-          <label for="missing-all" class="sm:whitespace-nowrap">Show only achievements all players are missing</label>
-        </div>
-      </div>
-      <div class="mt-6 flex justify-end">
-        <button
-          (click)="this.updateSettings()"
-          class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-        >
-          Apply
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Platform Selection -->
-  <div class="mb-6">
-    <label id="platform-label" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-      Platform
-    </label>
-    <div class="relative w-full md:w-64">
-      <button
-        type="button"
-        id="platform"
-        aria-haspopup="listbox"
-        [attr.aria-expanded]="this.isPlatformDropdownOpen"
-        aria-labelledby="platform-label"
-        (click)="this.togglePlatformDropdown()"
-        (blur)="this.closePlatformDropdown()"
-        class="w-full flex items-center justify-between px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-      >
-        <span class="flex items-center gap-2">
-          <ng-container [ngTemplateOutlet]="platformIcon" [ngTemplateOutletContext]="{ id: this.platform }"></ng-container>
-          {{ this.selectedPlatformName }}
-        </span>
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-down text-gray-400 shrink-0">
-          <polyline points="6 9 12 15 18 9"></polyline>
-        </svg>
-      </button>
-
-      <ul
-        *ngIf="this.isPlatformDropdownOpen"
-        role="listbox"
-        class="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 shadow-lg rounded-md border border-gray-200 dark:border-gray-600 overflow-hidden"
-      >
-        <li
-          *ngFor="let p of this.platforms"
-          role="option"
-          [attr.aria-selected]="p.id === this.platform"
-          (mousedown)="$event.preventDefault(); !p.disabled && this.selectPlatform(p.id)"
-          class="flex items-center gap-2 px-4 py-2 text-gray-900 dark:text-gray-100"
-          [class.cursor-pointer]="!p.disabled"
-          [class.hover:bg-gray-100]="!p.disabled"
-          [class.dark:hover:bg-gray-700]="!p.disabled"
-          [class.opacity-50]="p.disabled"
-          [class.cursor-not-allowed]="p.disabled"
-        >
-          <ng-container [ngTemplateOutlet]="platformIcon" [ngTemplateOutletContext]="{ id: p.id }"></ng-container>
-          {{ p.name }}
-        </li>
-      </ul>
-    </div>
-
-    <ng-template #platformIcon let-id="id">
-      <svg *ngIf="id === 'Steam'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" class="shrink-0">
-        <path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.031 4.524 4.527s-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.004.105.004.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.173-3.331-2.727L.436 15.27C1.862 20.307 6.486 24 11.979 24c6.627 0 11.999-5.373 11.999-12S18.605 0 11.979 0zM7.54 18.21l-1.473-.61c.262.543.714.999 1.314 1.25 1.297.539 2.793-.076 3.332-1.375.263-.63.264-1.319.005-1.949s-.75-1.121-1.377-1.383c-.624-.26-1.29-.249-1.878-.03l1.523.63c.956.4 1.409 1.5 1.009 2.455-.397.957-1.497 1.41-2.454 1.012H7.54zm11.415-9.303c0-1.662-1.353-3.015-3.015-3.015-1.665 0-3.015 1.353-3.015 3.015 0 1.665 1.35 3.015 3.015 3.015 1.663 0 3.015-1.35 3.015-3.015zm-5.273-.005c0-1.252 1.013-2.266 2.265-2.266 1.249 0 2.266 1.014 2.266 2.266 0 1.251-1.017 2.265-2.266 2.265-1.253 0-2.265-1.014-2.265-2.265z"/>
-      </svg>
-      <svg *ngIf="id === 'PSN'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" class="shrink-0">
-        <path d="M8.984 2.596v17.547l3.915 1.261V6.688c0-.69.304-1.151.794-.991.636.18.76.814.76 1.505v5.875c2.441 1.193 4.362-.002 4.362-3.152 0-3.237-1.126-4.675-4.438-5.827-1.307-.448-3.728-1.186-5.39-1.502zm4.656 16.241l6.296-2.275c.715-.258.826-.625.246-.818-.586-.192-1.637-.139-2.357.123l-4.205 1.5V14.98l.24-.085s1.201-.42 2.913-.615c1.696-.18 3.785.03 5.437.661 1.848.601 2.04 1.472 1.576 2.072-.465.6-1.622 1.036-1.622 1.036l-8.544 3.107V18.86zM1.807 18.6c-1.9-.545-2.214-1.668-1.352-2.32.801-.586 2.16-1.052 2.16-1.052l5.615-2.013v2.313L4.205 17c-.705.271-.825.632-.239.826.586.195 1.637.15 2.343-.12L8.247 17v2.074c-.12.03-.256.044-.39.073-1.939.331-3.996.196-6.038-.479z"/>
-      </svg>
-      <img *ngIf="id === 'Xbox'" src="icons/xbox.svg" alt="" width="18" height="18" class="shrink-0" />
-    </ng-template>
-  </div>
-
-  <!-- User Selection -->
-  <div class="mb-8">
-    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-      Users to Compare
-    </label>
-
-    <div class="flex flex-wrap gap-2 mb-4">
-      <div *ngFor="let user of this.users" class="flex items-center px-3 py-2 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 rounded-md">
-        <img *ngIf="user.avatar" [src]="user.avatar" alt="" class="w-6 h-6 rounded-full mr-2">
-        <span class="mr-2">{{ user.name }}</span>
-        <button
-          (click)="this.removeUser(user.id)"
-          class="text-blue-600 hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-100"
-          [attr.aria-label]="'Remove ' + user.name"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
-      </div>
-
-      <div *ngIf="this.users.length === 0" class="text-gray-500 dark:text-gray-400 italic">Add users to compare achievements</div>
-    </div>
-
-    <div class="relative">
-      <div class="flex">
-        <div class="relative flex-grow">
-          <input
-            #userSearchInput
-            type="text"
-            [(ngModel)]="this.searchQuery"
-            (ngModelChange)="this.handleSearchInput()"
-            (focus)="this.onSearchFocus()"
-            (blur)="this.onSearchBlur()"
-            placeholder="Search for a user"
-            class="w-full px-4 py-2 pl-10 border border-gray-300 dark:border-gray-600 rounded-l-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          />
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search text-gray-400">
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+  @if (this.isSettingsOpen) {
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-full sm:w-fit sm:max-w-2xl mx-4">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Settings</h2>
+          <button (click)="this.toggleSettings()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
-          </div>
+          </button>
         </div>
-        <button
-          class="px-4 py-2 bg-blue-600 text-white rounded-r-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-blue-300 dark:disabled:bg-blue-900"
-          [disabled]="this.searchQuery.length < 3"
-          (click)="this.searchUsers()"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-        </button>
-      </div>
-
-      <!-- Search Results Dropdown -->
-      <div *ngIf="this.searchResults.length > 0" class="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 shadow-lg rounded-md border border-gray-200 dark:border-gray-600 max-h-60 overflow-auto">
-        <div
-          *ngFor="let user of this.searchResults"
-          (mousedown)="$event.preventDefault(); this.addUser(user)"
-          class="flex items-center p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-gray-900 dark:text-gray-100"
-        >
-          <img *ngIf="user.avatar" [src]="user.avatar" alt="" class="w-8 h-8 rounded-full mr-3">
-          <svg *ngIf="!user.avatar" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user text-gray-400 mr-3">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-            <circle cx="12" cy="7" r="4"></circle>
-          </svg>
-          <div>
-            <div class="font-medium">{{ user.name }}</div>
-            <div *ngIf="user.isFriend" class="text-xs text-green-600 dark:text-green-400">Friend</div>
-          </div>
-        </div>
-      </div>
-
-      <div *ngIf="this.isSearching" class="text-sm text-gray-500 dark:text-gray-400 mt-1">Searching...</div>
-
-      <div *ngIf="this.searchQuery.length > 2 && this.searchResults.length === 0 && !this.isSearching" class="text-sm text-gray-500 dark:text-gray-400 mt-1">No users found</div>
-    </div>
-  </div>
-
-  <!-- Game Selection - Only show if users are selected -->
-  <div *ngIf="this.users.length > 0" class="mb-8">
-    <label for="game" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-      Select Game
-    </label>
-    <ng-container *ngIf="this.games.length > 0; else loadingGames">
-      <div class="relative">
-        <input
-          type="text"
-          id="game"
-          [(ngModel)]="this.gameSearchQuery"
-          (focus)="this.onGameSearchFocus()"
-          (blur)="this.onGameSearchBlur()"
-          placeholder="Search or select a game"
-          autocomplete="off"
-          class="w-full pl-9 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        />
-
-        <button
-          *ngIf="this.gameSearchQuery"
-          type="button"
-          (mousedown)="$event.preventDefault(); this.clearGameSearch()"
-          aria-label="Clear game search"
-          class="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
-
-        <!-- Game Dropdown -->
-        <div *ngIf="this.isGameDropdownOpen" class="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 shadow-lg rounded-md border border-gray-200 dark:border-gray-700 max-h-60 overflow-auto">
-          <div
-            *ngFor="let game of this.filteredGames"
-            (mousedown)="$event.preventDefault(); this.selectGame(game.id)"
-            class="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-gray-900 dark:text-gray-100"
-          >
-            {{ game.name }}
-          </div>
-          <div *ngIf="this.filteredGames.length === 0" class="p-3 text-sm text-gray-500 dark:text-gray-400">No games found</div>
-        </div>
-      </div>
-    </ng-container>
-    <ng-template #loadingGames>
-      <div class="text-gray-500 dark:text-gray-400 italic">Loading common games...</div>
-    </ng-template>
-  </div>
-
-  <!-- Achievements List -->
-  <div *ngIf="this.selectedGame && (this.isLoadingAchievements || this.achievements.length > 0)">
-    <div class="flex justify-between items-center mb-4">
-      <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Achievements</h2>
-      <div class="flex items-center gap-1">
-        <button
-          type="button"
-          (click)="this.decreaseRowSize()"
-          class="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-200"
-          aria-label="Decrease row size"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-minus">
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-        </button>
-        <span class="text-xs text-gray-500 dark:text-gray-400 w-10 text-center select-none">{{ this.rowSizeScale * 100 | number:'1.0-0' }}%</span>
-        <button
-          type="button"
-          (click)="this.increaseRowSize()"
-          class="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-200"
-          aria-label="Increase row size"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-        </button>
-      </div>
-    </div>
-
-    <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-gray-700" [style.--achv-scale]="this.rowSizeScale">
-    <div
-      *ngIf="this.isLoadingAchievements"
-      class="absolute inset-0 z-10 flex items-center justify-center bg-white/70 dark:bg-gray-800/70"
-    >
-      <div class="h-10 w-10 rounded-full border-4 border-gray-300 dark:border-gray-600 border-t-blue-600 dark:border-t-blue-400 animate-spin"></div>
-    </div>
-    <div class="max-h-[70vh] overflow-y-auto">
-      <ng-container *ngIf="this.filteredAchievements.length > 0; else noMatchingAchievements">
-        <div
-          *ngFor="let achievement of this.filteredAchievements; let odd = odd"
-          class="achievement-row flex items-center px-3 border-t border-gray-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors"
-          [class.bg-gray-50]="odd"
-          [class.dark:bg-gray-900]="odd"
-        >
-          <div class="flex items-center gap-3 w-3/4 min-w-0 pr-3">
-            <img
-              [src]="achievement.icon"
-              alt=""
-              class="achievement-icon rounded shrink-0"
-            />
-            <div class="min-w-0">
-              <div class="achievement-name font-medium truncate text-gray-900 dark:text-gray-100" [title]="achievement.name">{{ achievement.name }}</div>
-              <div class="achievement-desc text-gray-500 dark:text-gray-400 truncate" [title]="achievement.description">{{ achievement.description }}</div>
+        <div class="space-y-4 text-gray-900 dark:text-gray-100">
+          <div class="flex items-center">
+            <input
+              type="checkbox"
+              id="missing-some"
+              [(ngModel)]="this.showOnlyMissing"
+              class="mr-2 h-4 w-4"
+              />
+              <label for="missing-some" class="sm:whitespace-nowrap">Show only achievements at least one player is missing</label>
             </div>
-          </div>
-
-          <div class="flex items-center justify-center gap-3 w-1/4">
-            <div *ngFor="let user of this.users" class="flex items-center gap-0.5 pl-3 border-l border-gray-100 dark:border-gray-700 first:border-l-0 first:pl-0">
-              <ng-container *ngIf="achievement.users[user.id]?.achieved; else notAchieved">
-                <span
-                  class="achievement-status text-green-600 dark:text-green-400 font-bold leading-none"
-                  [title]="achievement.users[user.id].unlockTime ? (achievement.users[user.id].unlockTime | date:'medium') : ''"
-                >✓</span>
-              </ng-container>
-              <ng-template #notAchieved>
-                <span class="achievement-status text-red-400 dark:text-red-500 font-bold leading-none">✗</span>
-              </ng-template>
-              <img *ngIf="user.avatar" [src]="user.avatar" alt="" class="achievement-avatar rounded-full">
+            <div class="flex items-center">
+              <input
+                type="checkbox"
+                id="missing-all"
+                [(ngModel)]="this.showOnlyMissingAll"
+                class="mr-2 h-4 w-4"
+                />
+                <label for="missing-all" class="sm:whitespace-nowrap">Show only achievements all players are missing</label>
+              </div>
+            </div>
+            <div class="mt-6 flex justify-end">
+              <button
+                (click)="this.updateSettings()"
+                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                >
+                Apply
+              </button>
             </div>
           </div>
         </div>
-      </ng-container>
+      }
 
+      <!-- Platform Selection -->
+      <div class="mb-6">
+        <label id="platform-label" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Platform
+        </label>
+        <div class="relative w-full md:w-64">
+          <button
+            type="button"
+            id="platform"
+            aria-haspopup="listbox"
+            [attr.aria-expanded]="this.isPlatformDropdownOpen"
+            aria-labelledby="platform-label"
+            (click)="this.togglePlatformDropdown()"
+            (blur)="this.closePlatformDropdown()"
+            class="w-full flex items-center justify-between px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+            <span class="flex items-center gap-2">
+              <ng-container [ngTemplateOutlet]="platformIcon" [ngTemplateOutletContext]="{ id: this.platform }"></ng-container>
+              {{ this.selectedPlatformName }}
+            </span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-down text-gray-400 shrink-0">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
 
-      <ng-template #noMatchingAchievements>
-        <div class="p-8 text-center text-gray-500">
-          No achievements match your filter settings
+          @if (this.isPlatformDropdownOpen) {
+            <ul
+              role="listbox"
+              class="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 shadow-lg rounded-md border border-gray-200 dark:border-gray-600 overflow-hidden"
+              >
+              @for (p of this.platforms; track p) {
+                <li
+                  role="option"
+                  [attr.aria-selected]="p.id === this.platform"
+                  (mousedown)="$event.preventDefault(); !p.disabled && this.selectPlatform(p.id)"
+                  class="flex items-center gap-2 px-4 py-2 text-gray-900 dark:text-gray-100"
+                  [class.cursor-pointer]="!p.disabled"
+                  [class.hover:bg-gray-100]="!p.disabled"
+                  [class.dark:hover:bg-gray-700]="!p.disabled"
+                  [class.opacity-50]="p.disabled"
+                  [class.cursor-not-allowed]="p.disabled"
+                  >
+                  <ng-container [ngTemplateOutlet]="platformIcon" [ngTemplateOutletContext]="{ id: p.id }"></ng-container>
+                  {{ p.name }}
+                </li>
+              }
+            </ul>
+          }
         </div>
-      </ng-template>
-    </div>
-    </div>
-  </div>
-</div>
+
+        <ng-template #platformIcon let-id="id">
+          @if (id === 'Steam') {
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" class="shrink-0">
+              <path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.031 4.524 4.527s-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.004.105.004.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.173-3.331-2.727L.436 15.27C1.862 20.307 6.486 24 11.979 24c6.627 0 11.999-5.373 11.999-12S18.605 0 11.979 0zM7.54 18.21l-1.473-.61c.262.543.714.999 1.314 1.25 1.297.539 2.793-.076 3.332-1.375.263-.63.264-1.319.005-1.949s-.75-1.121-1.377-1.383c-.624-.26-1.29-.249-1.878-.03l1.523.63c.956.4 1.409 1.5 1.009 2.455-.397.957-1.497 1.41-2.454 1.012H7.54zm11.415-9.303c0-1.662-1.353-3.015-3.015-3.015-1.665 0-3.015 1.353-3.015 3.015 0 1.665 1.35 3.015 3.015 3.015 1.663 0 3.015-1.35 3.015-3.015zm-5.273-.005c0-1.252 1.013-2.266 2.265-2.266 1.249 0 2.266 1.014 2.266 2.266 0 1.251-1.017 2.265-2.266 2.265-1.253 0-2.265-1.014-2.265-2.265z"/>
+            </svg>
+          }
+          @if (id === 'PSN') {
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" class="shrink-0">
+              <path d="M8.984 2.596v17.547l3.915 1.261V6.688c0-.69.304-1.151.794-.991.636.18.76.814.76 1.505v5.875c2.441 1.193 4.362-.002 4.362-3.152 0-3.237-1.126-4.675-4.438-5.827-1.307-.448-3.728-1.186-5.39-1.502zm4.656 16.241l6.296-2.275c.715-.258.826-.625.246-.818-.586-.192-1.637-.139-2.357.123l-4.205 1.5V14.98l.24-.085s1.201-.42 2.913-.615c1.696-.18 3.785.03 5.437.661 1.848.601 2.04 1.472 1.576 2.072-.465.6-1.622 1.036-1.622 1.036l-8.544 3.107V18.86zM1.807 18.6c-1.9-.545-2.214-1.668-1.352-2.32.801-.586 2.16-1.052 2.16-1.052l5.615-2.013v2.313L4.205 17c-.705.271-.825.632-.239.826.586.195 1.637.15 2.343-.12L8.247 17v2.074c-.12.03-.256.044-.39.073-1.939.331-3.996.196-6.038-.479z"/>
+            </svg>
+          }
+          @if (id === 'Xbox') {
+            <img src="icons/xbox.svg" alt="" width="18" height="18" class="shrink-0" />
+          }
+        </ng-template>
+      </div>
+
+      <!-- User Selection -->
+      <div class="mb-8">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Users to Compare
+        </label>
+
+        <div class="flex flex-wrap gap-2 mb-4">
+          @for (user of this.users; track user) {
+            <div class="flex items-center px-3 py-2 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 rounded-md">
+              @if (user.avatar) {
+                <img [src]="user.avatar" alt="" class="w-6 h-6 rounded-full mr-2">
+              }
+              <span class="mr-2">{{ user.name }}</span>
+              <button
+                (click)="this.removeUser(user.id)"
+                class="text-blue-600 hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-100"
+                [attr.aria-label]="'Remove ' + user.name"
+                >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+          }
+
+          @if (this.users.length === 0) {
+            <div class="text-gray-500 dark:text-gray-400 italic">Add users to compare achievements</div>
+          }
+        </div>
+
+        <div class="relative">
+          <div class="flex">
+            <div class="relative flex-grow">
+              <input
+                #userSearchInput
+                type="text"
+                [(ngModel)]="this.searchQuery"
+                (ngModelChange)="this.handleSearchInput()"
+                (focus)="this.onSearchFocus()"
+                (blur)="this.onSearchBlur()"
+                placeholder="Search for a user"
+                class="w-full px-4 py-2 pl-10 border border-gray-300 dark:border-gray-600 rounded-l-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search text-gray-400">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                </div>
+              </div>
+              <button
+                class="px-4 py-2 bg-blue-600 text-white rounded-r-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-blue-300 dark:disabled:bg-blue-900"
+                [disabled]="this.searchQuery.length < 3"
+                (click)="this.searchUsers()"
+                >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Search Results Dropdown -->
+            @if (this.searchResults.length > 0) {
+              <div class="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 shadow-lg rounded-md border border-gray-200 dark:border-gray-600 max-h-60 overflow-auto">
+                @for (user of this.searchResults; track user) {
+                  <div
+                    (mousedown)="$event.preventDefault(); this.addUser(user)"
+                    class="flex items-center p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-gray-900 dark:text-gray-100"
+                    >
+                    @if (user.avatar) {
+                      <img [src]="user.avatar" alt="" class="w-8 h-8 rounded-full mr-3">
+                    }
+                    @if (!user.avatar) {
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user text-gray-400 mr-3">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                      </svg>
+                    }
+                    <div>
+                      <div class="font-medium">{{ user.name }}</div>
+                      @if (user.isFriend) {
+                        <div class="text-xs text-green-600 dark:text-green-400">Friend</div>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+
+            @if (this.isSearching) {
+              <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">Searching...</div>
+            }
+
+            @if (this.searchQuery.length > 2 && this.searchResults.length === 0 && !this.isSearching) {
+              <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">No users found</div>
+            }
+          </div>
+        </div>
+
+        <!-- Game Selection - Only show if users are selected -->
+        @if (this.users.length > 0) {
+          <div class="mb-8">
+            <label for="game" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Select Game
+            </label>
+            @if (this.games.length > 0) {
+              <div class="relative">
+                <input
+                  type="text"
+                  id="game"
+                  [(ngModel)]="this.gameSearchQuery"
+                  (focus)="this.onGameSearchFocus()"
+                  (blur)="this.onGameSearchBlur()"
+                  placeholder="Search or select a game"
+                  autocomplete="off"
+                  class="w-full pl-9 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                  @if (this.gameSearchQuery) {
+                    <button
+                      type="button"
+                      (mousedown)="$event.preventDefault(); this.clearGameSearch()"
+                      aria-label="Clear game search"
+                      class="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                      >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </button>
+                  }
+                  <!-- Game Dropdown -->
+                  @if (this.isGameDropdownOpen) {
+                    <div class="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 shadow-lg rounded-md border border-gray-200 dark:border-gray-700 max-h-60 overflow-auto">
+                      @for (game of this.filteredGames; track game) {
+                        <div
+                          (mousedown)="$event.preventDefault(); this.selectGame(game.id)"
+                          class="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-gray-900 dark:text-gray-100"
+                          >
+                          {{ game.name }}
+                        </div>
+                      }
+                      @if (this.filteredGames.length === 0) {
+                        <div class="p-3 text-sm text-gray-500 dark:text-gray-400">No games found</div>
+                      }
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="text-gray-500 dark:text-gray-400 italic">Loading common games...</div>
+              }
+            </div>
+          }
+
+          <!-- Achievements List -->
+          @if (this.selectedGame && (this.isLoadingAchievements || this.achievements.length > 0)) {
+            <div>
+              <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Achievements</h2>
+                <div class="flex items-center gap-1">
+                  <button
+                    type="button"
+                    (click)="this.decreaseRowSize()"
+                    class="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-200"
+                    aria-label="Decrease row size"
+                    >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-minus">
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                  </button>
+                  <span class="text-xs text-gray-500 dark:text-gray-400 w-10 text-center select-none">{{ this.rowSizeScale * 100 | number:'1.0-0' }}%</span>
+                  <button
+                    type="button"
+                    (click)="this.increaseRowSize()"
+                    class="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-200"
+                    aria-label="Increase row size"
+                    >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus">
+                      <line x1="12" y1="5" x2="12" y2="19"></line>
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-gray-700" [style.--achv-scale]="this.rowSizeScale">
+                @if (this.isLoadingAchievements) {
+                  <div
+                    class="absolute inset-0 z-10 flex items-center justify-center bg-white/70 dark:bg-gray-800/70"
+                    >
+                    <div class="h-10 w-10 rounded-full border-4 border-gray-300 dark:border-gray-600 border-t-blue-600 dark:border-t-blue-400 animate-spin"></div>
+                  </div>
+                }
+                <div class="max-h-[70vh] overflow-y-auto">
+                  @if (this.filteredAchievements.length > 0) {
+                    @for (achievement of this.filteredAchievements; track achievement; let odd = $odd) {
+                      <div
+                        class="achievement-row flex items-center px-3 border-t border-gray-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors"
+                        [class.bg-gray-50]="odd"
+                        [class.dark:bg-gray-900]="odd"
+                        >
+                        <div class="flex items-center gap-3 w-3/4 min-w-0 pr-3">
+                          <img
+                            [src]="achievement.icon"
+                            alt=""
+                            class="achievement-icon rounded shrink-0"
+                            />
+                            <div class="min-w-0">
+                              <div class="achievement-name font-medium truncate text-gray-900 dark:text-gray-100" [title]="achievement.name">{{ achievement.name }}</div>
+                              <div class="achievement-desc text-gray-500 dark:text-gray-400 truncate" [title]="achievement.description">{{ achievement.description }}</div>
+                            </div>
+                          </div>
+                          <div class="flex items-center justify-center gap-3 w-1/4">
+                            @for (user of this.users; track user) {
+                              <div class="flex items-center gap-0.5 pl-3 border-l border-gray-100 dark:border-gray-700 first:border-l-0 first:pl-0">
+                                @if (achievement.users[user.id]?.achieved) {
+                                  <span
+                                    class="achievement-status text-green-600 dark:text-green-400 font-bold leading-none"
+                                    [title]="achievement.users[user.id].unlockTime ? (achievement.users[user.id].unlockTime | date:'medium') : ''"
+                                  >✓</span>
+                                } @else {
+                                  <span class="achievement-status text-red-400 dark:text-red-500 font-bold leading-none">✗</span>
+                                }
+                                @if (user.avatar) {
+                                  <img [src]="user.avatar" alt="" class="achievement-avatar rounded-full">
+                                }
+                              </div>
+                            }
+                          </div>
+                        </div>
+                      }
+                    } @else {
+                      <div class="p-8 text-center text-gray-500">
+                        No achievements match your filter settings
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
