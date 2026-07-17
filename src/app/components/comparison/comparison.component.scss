@@ -1,0 +1,29 @@
+// Achievement row sizing driven by the --achv-scale CSS variable, which is
+// set inline based on the user's saved row size preference (see
+// ComparisonComponent.rowSizeScale, persisted to localStorage).
+.achievement-row {
+  padding-top: calc(0.25rem * var(--achv-scale, 1));
+  padding-bottom: calc(0.25rem * var(--achv-scale, 1));
+}
+
+.achievement-icon {
+  width: calc(1.5rem * var(--achv-scale, 1));
+  height: calc(1.5rem * var(--achv-scale, 1));
+}
+
+.achievement-name {
+  font-size: calc(0.875rem * var(--achv-scale, 1));
+}
+
+.achievement-desc {
+  font-size: calc(0.75rem * var(--achv-scale, 1));
+}
+
+.achievement-status {
+  font-size: calc(1rem * var(--achv-scale, 1));
+}
+
+.achievement-avatar {
+  width: calc(1rem * var(--achv-scale, 1));
+  height: calc(1rem * var(--achv-scale, 1));
+}

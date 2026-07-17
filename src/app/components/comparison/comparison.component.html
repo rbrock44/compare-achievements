@@ -271,9 +271,35 @@
 
   <!-- Achievements List -->
   <div *ngIf="this.selectedGame && (this.isLoadingAchievements || this.achievements.length > 0)">
-    <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">Achievements</h2>
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Achievements</h2>
+      <div class="flex items-center gap-1">
+        <button
+          type="button"
+          (click)="this.decreaseRowSize()"
+          class="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-200"
+          aria-label="Decrease row size"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-minus">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+        <span class="text-xs text-gray-500 dark:text-gray-400 w-10 text-center select-none">{{ this.rowSizeScale * 100 | number:'1.0-0' }}%</span>
+        <button
+          type="button"
+          (click)="this.increaseRowSize()"
+          class="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-200"
+          aria-label="Increase row size"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
 
-    <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-gray-700">
+    <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-gray-700" [style.--achv-scale]="this.rowSizeScale">
     <div
       *ngIf="this.isLoadingAchievements"
       class="absolute inset-0 z-10 flex items-center justify-center bg-white/70 dark:bg-gray-800/70"
@@ -284,7 +310,7 @@
       <ng-container *ngIf="this.filteredAchievements.length > 0; else noMatchingAchievements">
         <div
           *ngFor="let achievement of this.filteredAchievements; let odd = odd"
-          class="flex items-center px-3 py-1 border-t border-gray-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors"
+          class="achievement-row flex items-center px-3 border-t border-gray-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors"
           [class.bg-gray-50]="odd"
           [class.dark:bg-gray-900]="odd"
         >
@@ -292,11 +318,11 @@
             <img
               [src]="achievement.icon"
               alt=""
-              class="w-6 h-6 rounded shrink-0"
+              class="achievement-icon rounded shrink-0"
             />
             <div class="min-w-0">
-              <div class="font-medium text-sm truncate text-gray-900 dark:text-gray-100" [title]="achievement.name">{{ achievement.name }}</div>
-              <div class="text-xs text-gray-500 dark:text-gray-400 truncate" [title]="achievement.description">{{ achievement.description }}</div>
+              <div class="achievement-name font-medium truncate text-gray-900 dark:text-gray-100" [title]="achievement.name">{{ achievement.name }}</div>
+              <div class="achievement-desc text-gray-500 dark:text-gray-400 truncate" [title]="achievement.description">{{ achievement.description }}</div>
             </div>
           </div>
 
@@ -304,14 +330,14 @@
             <div *ngFor="let user of this.users" class="flex items-center gap-0.5 pl-3 border-l border-gray-100 dark:border-gray-700 first:border-l-0 first:pl-0">
               <ng-container *ngIf="achievement.users[user.id]?.achieved; else notAchieved">
                 <span
-                  class="text-green-600 dark:text-green-400 font-bold text-base leading-none"
+                  class="achievement-status text-green-600 dark:text-green-400 font-bold leading-none"
                   [title]="achievement.users[user.id].unlockTime ? (achievement.users[user.id].unlockTime | date:'medium') : ''"
                 >✓</span>
               </ng-container>
               <ng-template #notAchieved>
-                <span class="text-red-400 dark:text-red-500 font-bold text-base leading-none">✗</span>
+                <span class="achievement-status text-red-400 dark:text-red-500 font-bold leading-none">✗</span>
               </ng-template>
-              <img *ngIf="user.avatar" [src]="user.avatar" alt="" class="w-4 h-4 rounded-full">
+              <img *ngIf="user.avatar" [src]="user.avatar" alt="" class="achievement-avatar rounded-full">
             </div>
           </div>
         </div>

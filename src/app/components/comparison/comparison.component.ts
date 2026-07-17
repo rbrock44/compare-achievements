@@ -1,14 +1,14 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {HttpClient} from '@angular/common/http';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
-import {forkJoin, of} from 'rxjs';
-import {catchError} from 'rxjs/operators';
-import {SteamApiService} from '../../services/steam-api.service';
-import {ThemeService, Theme} from '../../services/theme.service';
-import {User} from '../../models/user.interface';
-import {Game} from '../../models/game.interface';
+import { CommonModule } from '@angular/common';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { Game } from '../../models/game.interface';
+import { User } from '../../models/user.interface';
+import { RowSizeService } from '../../services/row-size.service';
+import { SteamApiService } from '../../services/steam-api.service';
+import { Theme, ThemeService } from '../../services/theme.service';
 
 interface AchievementUserData {
   achieved: boolean;
@@ -67,7 +67,8 @@ export class ComparisonComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private steamService: SteamApiService,
-    public themeService: ThemeService
+    public themeService: ThemeService,
+    public rowSizeService: RowSizeService
   ) {
   }
 
@@ -77,6 +78,18 @@ export class ComparisonComponent implements OnInit {
 
   toggleTheme(): void {
     this.themeService.toggleTheme();
+  }
+
+  get rowSizeScale(): number {
+    return this.rowSizeService.rowSize;
+  }
+
+  increaseRowSize(): void {
+    this.rowSizeService.increaseRowSize();
+  }
+
+  decreaseRowSize(): void {
+    this.rowSizeService.decreaseRowSize();
   }
 
   get selectedPlatformName(): string {
