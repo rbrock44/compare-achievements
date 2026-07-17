@@ -228,10 +228,16 @@
   </div>
 
   <!-- Achievements List -->
-  <div *ngIf="this.selectedGame && this.achievements.length > 0">
+  <div *ngIf="this.selectedGame && (this.isLoadingAchievements || this.achievements.length > 0)">
     <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">Achievements</h2>
 
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-gray-700">
+    <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-gray-700">
+    <div
+      *ngIf="this.isLoadingAchievements"
+      class="absolute inset-0 z-10 flex items-center justify-center bg-white/70 dark:bg-gray-800/70"
+    >
+      <div class="h-10 w-10 rounded-full border-4 border-gray-300 dark:border-gray-600 border-t-blue-600 dark:border-t-blue-400 animate-spin"></div>
+    </div>
     <div class="max-h-[70vh] overflow-y-auto">
       <ng-container *ngIf="this.filteredAchievements.length > 0; else noMatchingAchievements">
         <div

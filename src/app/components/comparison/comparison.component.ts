@@ -51,6 +51,7 @@ export class ComparisonComponent implements OnInit {
   isGameDropdownOpen: boolean = false;
   selectedGame: string = '';
   achievements: Achievement[] = [];
+  isLoadingAchievements: boolean = false;
   showOnlyMissing: boolean = false;
   showOnlyMissingAll: boolean = false;
   isSearching: boolean = false;
@@ -257,6 +258,7 @@ export class ComparisonComponent implements OnInit {
     this.gameSearchQuery = '';
     this.selectedGame = '';
     this.achievements = [];
+    this.isLoadingAchievements = false;
     this.isGameDropdownOpen = true;
   }
 
@@ -268,43 +270,52 @@ export class ComparisonComponent implements OnInit {
       this.loadAchievements(gameId);
     } else {
       this.achievements = [];
+      this.isLoadingAchievements = false;
     }
     this.updateUrlParams();
   }
 
   loadAchievements(gameId: string): void {
     const appId = +gameId;
+    this.isLoadingAchievements = true;
 
-    this.steamService.getGameSchema(appId).subscribe(schema => {
-      const achievementCalls = this.users.map(user =>
-        this.steamService.getPlayerAchievements(user.id, appId).pipe(
-          catchError(() => of(null))
-        )
-      );
+    this.steamService.getGameSchema(appId).subscribe({
+      next: schema => {
+        const achievementCalls = this.users.map(user =>
+          this.steamService.getPlayerAchievements(user.id, appId).pipe(
+            catchError(() => of(null))
+          )
+        );
 
-      forkJoin(achievementCalls.length ? achievementCalls : [of(null)]).subscribe(results => {
-        this.achievements = schema.achievements.map(def => {
-          const usersData: { [userId: string]: AchievementUserData } = {};
+        forkJoin(achievementCalls.length ? achievementCalls : [of(null)]).subscribe({
+          next: results => {
+            this.achievements = schema.achievements.map(def => {
+              const usersData: { [userId: string]: AchievementUserData } = {};
 
-          this.users.forEach((user, index) => {
-            const userResult = results[index];
-            const match = userResult?.achievements.find(a => a.apiname === def.name);
+              this.users.forEach((user, index) => {
+                const userResult = results[index];
+                const match = userResult?.achievements.find(a => a.apiname === def.name);
 
-            usersData[user.id] = {
-              achieved: match ? match.achieved === 1 : false,
-              unlockTime: match?.unlocktime ? new Date(match.unlocktime * 1000).toISOString() : undefined
-            };
-          });
+                usersData[user.id] = {
+                  achieved: match ? match.achieved === 1 : false,
+                  unlockTime: match?.unlocktime ? new Date(match.unlocktime * 1000).toISOString() : undefined
+                };
+              });
 
-          return {
-            id: def.name,
-            name: def.displayName || def.name,
-            description: def.description ?? '',
-            icon: def.icon,
-            users: usersData
-          };
+              return {
+                id: def.name,
+                name: def.displayName || def.name,
+                description: def.description ?? '',
+                icon: def.icon,
+                users: usersData
+              };
+            });
+            this.isLoadingAchievements = false;
+          },
+          error: () => this.isLoadingAchievements = false
         });
-      });
+      },
+      error: () => this.isLoadingAchievements = false
     });
   }
 
