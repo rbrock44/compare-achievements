@@ -42,6 +42,12 @@ export class ComparisonComponent implements OnInit {
   @ViewChild('userSearchInput') userSearchInput?: ElementRef<HTMLInputElement>;
 
   platform: string = 'Steam';
+  isPlatformDropdownOpen: boolean = false;
+  readonly platforms = [
+    { id: 'Steam', name: 'Steam', disabled: false },
+    { id: 'PSN', name: 'PlayStation Network (Coming Soon)', disabled: true },
+    { id: 'Xbox', name: 'Xbox (Coming Soon)', disabled: true },
+  ];
   users: User[] = [];
   searchQuery: string = '';
   searchResults: User[] = [];
@@ -71,6 +77,24 @@ export class ComparisonComponent implements OnInit {
 
   toggleTheme(): void {
     this.themeService.toggleTheme();
+  }
+
+  get selectedPlatformName(): string {
+    return this.platforms.find(p => p.id === this.platform)?.name ?? this.platform;
+  }
+
+  togglePlatformDropdown(): void {
+    this.isPlatformDropdownOpen = !this.isPlatformDropdownOpen;
+  }
+
+  closePlatformDropdown(): void {
+    this.isPlatformDropdownOpen = false;
+  }
+
+  selectPlatform(platformId: string): void {
+    this.platform = platformId;
+    this.isPlatformDropdownOpen = false;
+    this.updateUrlParams();
   }
 
   ngOnInit(): void {
@@ -132,7 +156,8 @@ export class ComparisonComponent implements OnInit {
     const existingIds = new Set(this.friendsCache.map(f => f.id));
     const newFriends = friends.filter(f => !existingIds.has(f.id));
     if (newFriends.length > 0) {
-      this.friendsCache = [...this.friendsCache, ...newFriends];
+      this.friendsCache = [...this.friendsCache, ...newFriends]
+        .sort((a, b) => a.name.localeCompare(b.name));
     }
   }
 
