@@ -1,6 +1,6 @@
 # Compare Achievements
 
-Angular 19 (standalone components) app with an Express server for comparing Steam game
+Angular 21 (standalone components) app with an Express server for comparing Steam game
 achievements across multiple friends. Deployed as a static SPA to GitHub Pages (custom
 domain via `CNAME`); Angular SSR/Express (`server.ts`) exists in the codebase but is not
 used by the production deploy.
@@ -13,7 +13,8 @@ used by the production deploy.
 - Unit tests (Karma/Jasmine): `npm run test` (= `ng test`)
   - Run a single spec: `ng test --include='**/comparison.component.spec.ts'`
   - Run tests matching a name: `ng test --include='**/*.spec.ts'` then filter with Jasmine's `fit`/`fdescribe` in the spec file
-- Build + deploy to GitHub Pages: `npm run prod` (must be run from an up-to-date `master`; normally only the CI workflow does this)
+- Manual build + publish to GitHub Pages: `npm run prod` (= `npm run deploy` + `gh-pages` package;
+  run this locally from an up-to-date `master` if you need to publish outside of CI)
 
 There is no separate lint script configured in `package.json`.
 
@@ -48,6 +49,7 @@ There is no separate lint script configured in `package.json`.
   `[key: string]: any` for the variable payload key (`results`, `players`, `games`, etc.).
 - User search/suggestion lists must show friends first, sorted alphabetically by name (not
   by id or insertion order).
-- CI (`.github/workflows/deploy.yml`) builds and deploys on every push to `master` using
-  `npm run deploy` + `peaceiris/actions-gh-pages`; it writes `STEAM_API_KEY` into a fresh
-  `.env` from a GitHub secret before building.
+- CI (`.github/workflows/deploy.yml`, Node 22) builds and deploys on every push to `master`
+  using `npm run deploy` (build only) + the `peaceiris/actions-gh-pages` action to publish —
+  it does **not** call `npm run prod` or the local `gh-pages` script. It writes
+  `STEAM_API_KEY` into a fresh `.env` from a GitHub secret before building.
