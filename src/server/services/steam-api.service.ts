@@ -14,6 +14,10 @@ if (!STEAM_API_KEY) {
 }
 
 export class SteamApiService {
+  // Achievement definitions for a game almost never change, so cache them
+  // to avoid re-hitting Steam's rate-limited API on every comparison load.
+  private schemaCache = new Map<number, { data: { achievements: any[]; name: string }; expiresAt: number }>();
+  private readonly SCHEMA_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
   /**
    * Resolve a Steam user by SteamID64 or vanity URL name.
@@ -166,6 +170,11 @@ export class SteamApiService {
    * Get game schema (achievement details)
    */
   async getGameSchema(appId: number) {
+    const cached = this.schemaCache.get(appId);
+    if (cached && cached.expiresAt > Date.now()) {
+      return { success: true, ...cached.data };
+    }
+
     try {
       const response = await axios.get(`${STEAM_API_BASE_URL}/ISteamUserStats/GetSchemaForGame/v2/`, {
         params: {
@@ -175,11 +184,13 @@ export class SteamApiService {
         }
       });
 
-      return {
-        success: true,
+      const data = {
         achievements: response.data.game.availableGameStats?.achievements || [],
         name: response.data.game.gameName
       };
+      this.schemaCache.set(appId, { data, expiresAt: Date.now() + this.SCHEMA_CACHE_TTL_MS });
+
+      return { success: true, ...data };
     } catch (error) {
       console.error('Error getting game schema:', error);
       return { success: false, error: 'Failed to get game details' };

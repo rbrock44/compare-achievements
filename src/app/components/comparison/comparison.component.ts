@@ -129,13 +129,15 @@ export class ComparisonComponent implements OnInit {
   }
 
   updateUrlParams(): void {
-    const queryParams: any = {};
-
-    queryParams.platform = this.platform;
-    if (this.users.length > 0) queryParams.users = this.users.map(u => u.id).join(',');
-    if (this.selectedGame) queryParams.game = this.selectedGame;
-    if (this.showOnlyMissing) queryParams.missing = 'true';
-    if (this.showOnlyMissingAll) queryParams.missingAll = 'true';
+    // Explicit null (not just omitting the key) is required to clear a param
+    // under queryParamsHandling: 'merge' — otherwise a stale value lingers in the URL.
+    const queryParams: any = {
+      platform: this.platform,
+      users: this.users.length > 0 ? this.users.map(u => u.id).join(',') : null,
+      game: this.selectedGame || null,
+      missing: this.showOnlyMissing ? 'true' : null,
+      missingAll: this.showOnlyMissingAll ? 'true' : null,
+    };
 
     this.router.navigate([], {
       relativeTo: this.route,
