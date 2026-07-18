@@ -3,5 +3,6 @@ export const environment = {
   // Other non-sensitive config variables
   apiEndpoints: {
     steam: '/api/steam', // Local API endpoint that will proxy to Steam API
+    psn: '/api/psn', // Local API endpoint that will proxy to the PSN API
   }
 };

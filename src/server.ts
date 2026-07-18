@@ -9,6 +9,7 @@ import express from 'express';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import steamApiRoutes from './server/routes/steam-api.routes';
+import psnApiRoutes from './server/routes/psn-api.routes';
 
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
@@ -26,6 +27,7 @@ const allowedOrigins = (process.env['ALLOWED_ORIGINS'] || 'http://localhost:4200
   .map(origin => origin.trim());
 
 app.use('/api/steam', cors({ origin: allowedOrigins }), steamApiRoutes);
+app.use('/api/psn', cors({ origin: allowedOrigins }), psnApiRoutes);
 
 /**
  * Serve static files from /browser

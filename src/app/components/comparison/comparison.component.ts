@@ -8,6 +8,8 @@ import { Game } from '../../models/game.interface';
 import { User } from '../../models/user.interface';
 import { RowSizeService } from '../../services/row-size.service';
 import { SteamApiService } from '../../services/steam-api.service';
+import { PsnApiService } from '../../services/psn-api.service';
+import { PlatformApiService } from '../../services/platform-api.interface';
 import { Theme, ThemeService } from '../../services/theme.service';
 
 interface AchievementUserData {
@@ -35,7 +37,8 @@ interface Achievement {
   templateUrl: './comparison.component.html',
   styleUrls: ['./comparison.component.scss'],
   providers: [
-    SteamApiService
+    SteamApiService,
+    PsnApiService
   ]
 })
 export class ComparisonComponent implements OnInit {
@@ -45,7 +48,7 @@ export class ComparisonComponent implements OnInit {
   isPlatformDropdownOpen: boolean = false;
   readonly platforms = [
     { id: 'Steam', name: 'Steam', disabled: false },
-    { id: 'PSN', name: 'PlayStation Network (Coming Soon)', disabled: true },
+    { id: 'PSN', name: 'PlayStation Network', disabled: false },
     { id: 'Xbox', name: 'Xbox (Coming Soon)', disabled: true },
   ];
   users: User[] = [];
@@ -67,9 +70,14 @@ export class ComparisonComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private steamService: SteamApiService,
+    private psnService: PsnApiService,
     public themeService: ThemeService,
     public rowSizeService: RowSizeService
   ) {
+  }
+
+  private get activeService(): PlatformApiService {
+    return this.platform === 'PSN' ? this.psnService : this.steamService;
   }
 
   get theme(): Theme {
@@ -105,8 +113,20 @@ export class ComparisonComponent implements OnInit {
   }
 
   selectPlatform(platformId: string): void {
-    this.platform = platformId;
     this.isPlatformDropdownOpen = false;
+    if (platformId === this.platform) return;
+
+    this.platform = platformId;
+    // User/game/friend IDs are platform-specific, so stale state from the previous
+    // platform would otherwise be sent to the newly-selected platform's API.
+    this.users = [];
+    this.friendsCache = [];
+    this.games = [];
+    this.selectedGame = '';
+    this.gameSearchQuery = '';
+    this.achievements = [];
+    this.searchQuery = '';
+    this.searchResults = [];
     this.updateUrlParams();
   }
 
@@ -147,7 +167,7 @@ export class ComparisonComponent implements OnInit {
   }
 
   loadUserDetails(userId: string): void {
-    this.steamService.getPlayerSummaries([userId]).subscribe(users => {
+    this.activeService.getPlayerSummaries([userId]).subscribe(users => {
       const user = users[0] ?? { id: userId, name: userId };
       if (!this.users.some(u => u.id === user.id)) {
         this.users.push(user);
@@ -160,7 +180,7 @@ export class ComparisonComponent implements OnInit {
   }
 
   loadFriends(userId: string): void {
-    this.steamService.getFriendsList(userId).subscribe({
+    this.activeService.getFriendsList(userId).subscribe({
       next: friends => this.mergeFriends(friends),
       error: () => {}
     });
@@ -197,7 +217,7 @@ export class ComparisonComponent implements OnInit {
     const query = this.searchQuery.toLowerCase();
     const friendMatches = this.getMatchingFriends(query);
 
-    this.steamService.searchUsers(query).subscribe({
+    this.activeService.searchUsers(query).subscribe({
       next: users => {
         const knownIds = new Set([...friendMatches.map(f => f.id), ...this.users.map(u => u.id)]);
         const steamMatches = users.filter(u => !knownIds.has(u.id));
@@ -265,7 +285,7 @@ export class ComparisonComponent implements OnInit {
   }
 
   loadCommonGames(): void {
-    this.steamService.getCommonGames(this.users.map(x => x.id)).subscribe(commonGames => {
+    this.activeService.getCommonGames(this.users.map(x => x.id)).subscribe(commonGames => {
       this.games = [...commonGames].sort((a, b) => a.name.localeCompare(b.name));
       this.syncGameSearchQueryWithSelection();
     });
@@ -316,13 +336,12 @@ export class ComparisonComponent implements OnInit {
   }
 
   loadAchievements(gameId: string): void {
-    const appId = +gameId;
     this.isLoadingAchievements = true;
 
-    this.steamService.getGameSchema(appId).subscribe({
+    this.activeService.getGameSchema(gameId).subscribe({
       next: schema => {
         const achievementCalls = this.users.map(user =>
-          this.steamService.getPlayerAchievements(user.id, appId).pipe(
+          this.activeService.getPlayerAchievements(user.id, gameId).pipe(
             catchError(() => of(null))
           )
         );

@@ -2,6 +2,7 @@ import express from 'express';
 import * as path from 'path';
 import * as dotenv from 'dotenv';
 import steamRoutes from './routes/steam-api.routes';
+import psnRoutes from './routes/psn-api.routes';
 import { Request, Response } from 'express';
 
 // Load environment variables
@@ -10,9 +11,12 @@ dotenv.config();
 const app = express();
 const PORT = process.env['PORT'] || 4000;
 
-// Check for API key
+// Check for API keys
 if (!process.env['STEAM_API_KEY']) {
   console.error('WARNING: STEAM_API_KEY environment variable is not set.');
+}
+if (!process.env['PSN_NPSSO']) {
+  console.error('WARNING: PSN_NPSSO environment variable is not set.');
 }
 
 // Middleware
@@ -21,6 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // API routes
 app.use('/api/steam', steamRoutes);
+app.use('/api/psn', psnRoutes);
 
 // Serve static files from the Angular app
 const distPath = path.join(__dirname, '../dist/your-app-name/browser');

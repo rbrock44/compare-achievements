@@ -6,19 +6,12 @@ import { User } from '../models/user.interface';
 import { Game } from '../models/game.interface';
 import { Achievement } from '../models/achievement.interface';
 import { SteamUser } from '../models/steam-user.interface';
+import { AchievementSchemaEntry, PlatformApiService } from './platform-api.interface';
 
 interface ApiResult<T> {
   success: boolean;
   error?: string;
   [key: string]: any;
-}
-
-export interface AchievementSchemaEntry {
-  name: string;
-  displayName: string;
-  description?: string;
-  icon: string;
-  icongray: string;
 }
 
 function toUser(steamUser: SteamUser): User {
@@ -33,7 +26,7 @@ function toUser(steamUser: SteamUser): User {
 @Injectable({
   providedIn: 'root'
 })
-export class SteamApiService {
+export class SteamApiService implements PlatformApiService {
   private apiUrl = environment.apiEndpoints.steam;
 
   constructor(private http: HttpClient) {}
@@ -65,13 +58,13 @@ export class SteamApiService {
     );
   }
 
-  getPlayerAchievements(steamId: string, appId: number): Observable<{ achievements: Achievement[]; gameName: string } | null> {
+  getPlayerAchievements(steamId: string, appId: string): Observable<{ achievements: Achievement[]; gameName: string } | null> {
     return this.http.get<ApiResult<{ achievements: Achievement[]; gameName: string }>>(`${this.apiUrl}/achievements/${steamId}/${appId}`).pipe(
       map(res => (res.success ? { achievements: res['achievements'] as Achievement[], gameName: res['gameName'] as string } : null))
     );
   }
 
-  getGameSchema(appId: number): Observable<{ achievements: AchievementSchemaEntry[]; name: string }> {
+  getGameSchema(appId: string): Observable<{ achievements: AchievementSchemaEntry[]; name: string }> {
     return this.http.get<ApiResult<{ achievements: AchievementSchemaEntry[]; name: string }>>(`${this.apiUrl}/game-schema/${appId}`).pipe(
       map(res => (res.success ? { achievements: res['achievements'] as AchievementSchemaEntry[], name: res['name'] as string } : { achievements: [], name: '' }))
     );
