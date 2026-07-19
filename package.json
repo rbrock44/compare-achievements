@@ -9,7 +9,7 @@
     "test": "ng test",
     "serve:ssr:compare-achievements": "node dist/compare-achievements/server/server.mjs",
     "gh-pages": "gh-pages -d dist/compare-achievements/browser",
-    "deploy": "ng build --base-href=https://compare-achievements.ryan-brock.com",
+    "deploy": "ng build --base-href=/",
     "prod": "npm run deploy && npm run gh-pages"
   },
   "private": true,
