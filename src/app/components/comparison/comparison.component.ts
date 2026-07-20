@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
@@ -36,6 +36,7 @@ interface Achievement {
   selector: 'app-comparison',
   templateUrl: './comparison.component.html',
   styleUrls: ['./comparison.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [
     SteamApiService,
     PsnApiService

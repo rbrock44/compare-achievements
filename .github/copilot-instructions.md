@@ -1,6 +1,6 @@
 # Compare Achievements
 
-Angular 21 (standalone components) app with an Express server for comparing Steam and
+Angular 22 (standalone components) app with an Express server for comparing Steam and
 PlayStation Network (PSN) game achievements/trophies across multiple friends. Deployed as
 a static SPA to GitHub Pages (custom domain via `CNAME`); `src/server.ts` (Angular
 SSR/Express) is not used by the GitHub Pages deploy, but it IS the actual server that Render
@@ -70,7 +70,7 @@ There is no separate lint script configured in `package.json`.
   `[key: string]: any` for the variable payload key (`results`, `players`, `games`, etc.).
 - User search/suggestion lists must show friends first, sorted alphabetically by name (not
   by id or insertion order).
-- CI (`.github/workflows/deploy.yml`, Node 22) builds and deploys on every push to `master`
+- CI (`.github/workflows/deploy.yml`, Node version pinned in `.nvmrc`) builds and deploys on every push to `master`
   using `npm run deploy` (build only) + the `peaceiris/actions-gh-pages` action to publish —
   it does **not** call `npm run prod` or the local `gh-pages` script. It writes
   `STEAM_API_KEY` into a fresh `.env` from a GitHub secret before building.
