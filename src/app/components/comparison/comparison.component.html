@@ -43,10 +43,18 @@
   <!-- Settings Modal -->
   @if (this.isSettingsOpen) {
     <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-full sm:w-fit sm:max-w-2xl mx-4">
+      <div
+        #settingsPanel
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="settings-title"
+        tabindex="-1"
+        (keydown)="this.onSettingsPanelKeydown($event)"
+        class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-full sm:w-fit sm:max-w-2xl mx-4"
+        >
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Settings</h2>
-          <button (click)="this.toggleSettings()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+          <h2 id="settings-title" class="text-xl font-bold text-gray-900 dark:text-gray-100">Settings</h2>
+          <button (click)="this.toggleSettings()" aria-label="Close settings" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -90,15 +98,17 @@
         <label id="platform-label" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
           Platform
         </label>
-        <div class="relative w-full md:w-64">
+        <div class="relative w-full md:w-64" (focusout)="this.onPlatformContainerFocusOut($event)">
           <button
+            #platformTrigger
             type="button"
             id="platform"
             aria-haspopup="listbox"
             [attr.aria-expanded]="this.isPlatformDropdownOpen"
             aria-labelledby="platform-label"
+            [attr.aria-activedescendant]="this.highlightedPlatformOptionId"
             (click)="this.togglePlatformDropdown()"
-            (blur)="this.closePlatformDropdown()"
+            (keydown)="this.onPlatformTriggerKeydown($event)"
             class="w-full flex items-center justify-between px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
             <span class="flex items-center gap-2">
@@ -112,11 +122,17 @@
 
           @if (this.isPlatformDropdownOpen) {
             <ul
+              #platformListbox
               role="listbox"
+              tabindex="0"
+              aria-labelledby="platform-label"
+              [attr.aria-activedescendant]="this.highlightedPlatformOptionId"
+              (keydown)="this.onPlatformListboxKeydown($event)"
               class="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 shadow-lg rounded-md border border-gray-200 dark:border-gray-600 overflow-hidden"
               >
-              @for (p of this.platforms; track p) {
+              @for (p of this.platforms; track p; let i = $index) {
                 <li
+                  [id]="'platform-option-' + p.id"
                   role="option"
                   [attr.aria-selected]="p.id === this.platform"
                   (mousedown)="$event.preventDefault(); !p.disabled && this.selectPlatform(p.id)"
@@ -124,6 +140,8 @@
                   [class.cursor-pointer]="!p.disabled"
                   [class.hover:bg-gray-100]="!p.disabled"
                   [class.dark:hover:bg-gray-700]="!p.disabled"
+                  [class.bg-gray-100]="!p.disabled && i === this.highlightedPlatformIndex"
+                  [class.dark:bg-gray-700]="!p.disabled && i === this.highlightedPlatformIndex"
                   [class.opacity-50]="p.disabled"
                   [class.cursor-not-allowed]="p.disabled"
                   >
@@ -264,9 +282,17 @@
                 <input
                   type="text"
                   id="game"
+                  role="combobox"
+                  aria-autocomplete="list"
+                  aria-haspopup="listbox"
+                  [attr.aria-expanded]="this.isGameDropdownOpen"
+                  aria-controls="game-listbox"
+                  [attr.aria-activedescendant]="this.highlightedGameOptionId"
                   [(ngModel)]="this.gameSearchQuery"
+                  (ngModelChange)="this.onGameSearchInput()"
                   (focus)="this.onGameSearchFocus()"
                   (blur)="this.onGameSearchBlur()"
+                  (keydown)="this.onGameSearchKeydown($event)"
                   placeholder="Search or select a game"
                   autocomplete="off"
                   class="w-full pl-9 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -286,11 +312,16 @@
                   }
                   <!-- Game Dropdown -->
                   @if (this.isGameDropdownOpen) {
-                    <div class="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 shadow-lg rounded-md border border-gray-200 dark:border-gray-700 max-h-60 overflow-auto">
-                      @for (game of this.filteredGames; track game) {
+                    <div id="game-listbox" role="listbox" aria-label="Games" class="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 shadow-lg rounded-md border border-gray-200 dark:border-gray-700 max-h-60 overflow-auto">
+                      @for (game of this.filteredGames; track game; let i = $index) {
                         <div
+                          [id]="'game-option-' + game.id"
+                          role="option"
+                          [attr.aria-selected]="game.id === this.selectedGame"
                           (mousedown)="$event.preventDefault(); this.selectGame(game.id)"
                           class="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer text-gray-900 dark:text-gray-100"
+                          [class.bg-gray-100]="i === this.highlightedGameIndex"
+                          [class.dark:bg-gray-700]="i === this.highlightedGameIndex"
                           >
                           {{ game.name }}
                         </div>

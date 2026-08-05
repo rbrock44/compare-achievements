@@ -44,9 +44,29 @@ interface Achievement {
 })
 export class ComparisonComponent implements OnInit {
   @ViewChild('userSearchInput') userSearchInput?: ElementRef<HTMLInputElement>;
+  @ViewChild('platformTrigger') platformTrigger?: ElementRef<HTMLButtonElement>;
+
+  // Setter-based ViewChild: fires as soon as the (conditionally-rendered) platform
+  // listbox appears in the DOM, so keyboard focus can move into it immediately.
+  @ViewChild('platformListbox') set platformListboxRef(ref: ElementRef<HTMLUListElement> | undefined) {
+    ref?.nativeElement.focus();
+  }
+
+  // Setter-based ViewChild: fires as soon as the Settings modal panel appears in the
+  // DOM, so we can move focus into it and keep a reference for the Tab-cycle trap.
+  @ViewChild('settingsPanel') set settingsPanelRef(ref: ElementRef<HTMLElement> | undefined) {
+    this.settingsPanelElement = ref?.nativeElement ?? null;
+    if (ref) {
+      const firstFocusable = ref.nativeElement.querySelector<HTMLElement>(
+        'button, input, [href], select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      (firstFocusable ?? ref.nativeElement).focus();
+    }
+  }
 
   platform: string = 'Steam';
   isPlatformDropdownOpen: boolean = false;
+  highlightedPlatformIndex: number = -1;
   readonly platforms = [
     { id: 'Steam', name: 'Steam', disabled: false },
     { id: 'PSN', name: 'PlayStation Network', disabled: false },
@@ -59,6 +79,7 @@ export class ComparisonComponent implements OnInit {
   games: Game[] = [];
   gameSearchQuery: string = '';
   isGameDropdownOpen: boolean = false;
+  highlightedGameIndex: number = -1;
   selectedGame: string = '';
   achievements: Achievement[] = [];
   isLoadingAchievements: boolean = false;
@@ -66,6 +87,8 @@ export class ComparisonComponent implements OnInit {
   showOnlyMissingAll: boolean = false;
   isSearching: boolean = false;
   isSettingsOpen: boolean = false;
+  private lastFocusedElementBeforeSettings: HTMLElement | null = null;
+  private settingsPanelElement: HTMLElement | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -106,11 +129,95 @@ export class ComparisonComponent implements OnInit {
   }
 
   togglePlatformDropdown(): void {
-    this.isPlatformDropdownOpen = !this.isPlatformDropdownOpen;
+    if (this.isPlatformDropdownOpen) {
+      this.closePlatformDropdown();
+    } else {
+      this.openPlatformDropdown();
+    }
+  }
+
+  openPlatformDropdown(): void {
+    this.isPlatformDropdownOpen = true;
+    const currentIndex = this.platforms.findIndex(p => p.id === this.platform);
+    this.highlightedPlatformIndex = currentIndex >= 0 ? currentIndex : 0;
   }
 
   closePlatformDropdown(): void {
     this.isPlatformDropdownOpen = false;
+  }
+
+  // Handles Enter/Space/ArrowUp/ArrowDown on the trigger button while the listbox is
+  // closed. Once open, keyboard handling moves to the listbox itself (see
+  // onPlatformListboxKeydown) so the option list can be navigated with the arrow keys.
+  onPlatformTriggerKeydown(event: KeyboardEvent): void {
+    if (this.isPlatformDropdownOpen) return;
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      this.openPlatformDropdown();
+    }
+  }
+
+  // Arrow-key navigation, Enter-to-select and Escape-to-close for the open platform
+  // listbox, per the WAI-ARIA APG listbox pattern.
+  onPlatformListboxKeydown(event: KeyboardEvent): void {
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        this.moveHighlightedPlatform(1);
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        this.moveHighlightedPlatform(-1);
+        break;
+      case 'Enter':
+      case ' ':
+        event.preventDefault();
+        this.selectHighlightedPlatform();
+        break;
+      case 'Escape':
+        event.preventDefault();
+        this.closePlatformDropdown();
+        this.platformTrigger?.nativeElement.focus();
+        break;
+    }
+  }
+
+  // Focus leaving the whole platform-picker container (button + listbox) closes the
+  // dropdown, same as the previous button-only (blur) behavior, but without closing
+  // when focus simply moves from the button into the listbox on open.
+  onPlatformContainerFocusOut(event: FocusEvent): void {
+    const container = event.currentTarget as HTMLElement;
+    const next = event.relatedTarget as Node | null;
+    if (!next || !container.contains(next)) {
+      this.closePlatformDropdown();
+    }
+  }
+
+  private moveHighlightedPlatform(delta: number): void {
+    const count = this.platforms.length;
+    if (count === 0) return;
+    let index = this.highlightedPlatformIndex;
+    for (let i = 0; i < count; i++) {
+      index = (index + delta + count) % count;
+      if (!this.platforms[index].disabled) {
+        this.highlightedPlatformIndex = index;
+        return;
+      }
+    }
+  }
+
+  private selectHighlightedPlatform(): void {
+    const option = this.platforms[this.highlightedPlatformIndex];
+    if (option && !option.disabled) {
+      this.selectPlatform(option.id);
+      this.platformTrigger?.nativeElement.focus();
+    }
+  }
+
+  get highlightedPlatformOptionId(): string | null {
+    if (!this.isPlatformDropdownOpen || this.highlightedPlatformIndex < 0) return null;
+    const option = this.platforms[this.highlightedPlatformIndex];
+    return option ? `platform-option-${option.id}` : null;
   }
 
   selectPlatform(platformId: string): void {
@@ -301,6 +408,7 @@ export class ComparisonComponent implements OnInit {
 
   onGameSearchFocus(): void {
     this.isGameDropdownOpen = true;
+    this.highlightedGameIndex = -1;
   }
 
   onGameSearchBlur(): void {
@@ -308,6 +416,61 @@ export class ComparisonComponent implements OnInit {
     // Restore the text box to reflect the current selection if the user
     // clicked away without picking one of the filtered options
     this.syncGameSearchQueryWithSelection();
+  }
+
+  // Reset the keyboard highlight whenever the filtered list changes underneath it.
+  onGameSearchInput(): void {
+    this.highlightedGameIndex = -1;
+  }
+
+  // Arrow-key navigation, Enter-to-select and Escape-to-close for the game combobox's
+  // listbox popup. Focus stays on the text input throughout (standard editable-combobox
+  // pattern), so aria-activedescendant on the input tracks the highlighted option.
+  onGameSearchKeydown(event: KeyboardEvent): void {
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        if (!this.isGameDropdownOpen) this.isGameDropdownOpen = true;
+        this.moveHighlightedGame(1);
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        if (!this.isGameDropdownOpen) this.isGameDropdownOpen = true;
+        this.moveHighlightedGame(-1);
+        break;
+      case 'Enter': {
+        if (!this.isGameDropdownOpen || this.highlightedGameIndex < 0) return;
+        event.preventDefault();
+        const game = this.filteredGames[this.highlightedGameIndex];
+        if (game) this.selectGame(game.id);
+        break;
+      }
+      case 'Escape':
+        if (!this.isGameDropdownOpen) return;
+        event.preventDefault();
+        this.isGameDropdownOpen = false;
+        this.syncGameSearchQueryWithSelection();
+        break;
+    }
+  }
+
+  private moveHighlightedGame(delta: number): void {
+    const count = this.filteredGames.length;
+    if (count === 0) {
+      this.highlightedGameIndex = -1;
+      return;
+    }
+    if (this.highlightedGameIndex < 0) {
+      this.highlightedGameIndex = delta > 0 ? 0 : count - 1;
+    } else {
+      this.highlightedGameIndex = (this.highlightedGameIndex + delta + count) % count;
+    }
+  }
+
+  get highlightedGameOptionId(): string | null {
+    if (!this.isGameDropdownOpen || this.highlightedGameIndex < 0) return null;
+    const game = this.filteredGames[this.highlightedGameIndex];
+    return game ? `game-option-${game.id}` : null;
   }
 
   private syncGameSearchQueryWithSelection(): void {
@@ -380,12 +543,55 @@ export class ComparisonComponent implements OnInit {
   }
 
   toggleSettings(): void {
-    this.isSettingsOpen = !this.isSettingsOpen;
+    if (this.isSettingsOpen) {
+      this.closeSettings();
+    } else {
+      this.openSettings();
+    }
+  }
+
+  private openSettings(): void {
+    this.lastFocusedElementBeforeSettings = document.activeElement as HTMLElement;
+    this.isSettingsOpen = true;
+  }
+
+  private closeSettings(): void {
+    this.isSettingsOpen = false;
+    this.lastFocusedElementBeforeSettings?.focus();
+    this.lastFocusedElementBeforeSettings = null;
+  }
+
+  // Escape-to-close and a minimal Tab-cycle focus trap while the Settings dialog is open.
+  onSettingsPanelKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      this.closeSettings();
+      return;
+    }
+    if (event.key !== 'Tab' || !this.settingsPanelElement) return;
+
+    const focusable = Array.from(
+      this.settingsPanelElement.querySelectorAll<HTMLElement>(
+        'button, input, [href], select, textarea, [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter(el => !el.hasAttribute('disabled'));
+    if (focusable.length === 0) return;
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
   }
 
   updateSettings(): void {
     this.updateUrlParams();
-    this.isSettingsOpen = false;
+    this.closeSettings();
   }
 
   // Filter achievements based on settings
