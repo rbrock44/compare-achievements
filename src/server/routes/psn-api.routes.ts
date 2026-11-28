@@ -39,7 +39,7 @@ router.get('/players', async (req: Request, res: Response) => {
 });
 
 // Get owned games
-router.get('/games/:accountId', async (req: Request, res: Response) => {
+router.get('/games/:accountId', async (req: Request<{ accountId: string }>, res: Response) => {
   try {
     const { accountId } = req.params;
 
@@ -73,7 +73,7 @@ router.get('/common-games', async (req: Request, res: Response) => {
 });
 
 // Get player achievements (trophies)
-router.get('/achievements/:accountId/:gameId', async (req: Request, res: Response) => {
+router.get('/achievements/:accountId/:gameId', async (req: Request<{ accountId: string; gameId: string }>, res: Response) => {
   try {
     const { accountId, gameId } = req.params;
 
@@ -90,7 +90,7 @@ router.get('/achievements/:accountId/:gameId', async (req: Request, res: Respons
 });
 
 // Get game schema (trophy details)
-router.get('/game-schema/:gameId', async (req: Request, res: Response) => {
+router.get('/game-schema/:gameId', async (req: Request<{ gameId: string }>, res: Response) => {
   try {
     const { gameId } = req.params;
 
@@ -107,7 +107,7 @@ router.get('/game-schema/:gameId', async (req: Request, res: Response) => {
 });
 
 // Get friends list
-router.get('/friends/:accountId', async (req: Request, res: Response) => {
+router.get('/friends/:accountId', async (req: Request<{ accountId: string }>, res: Response) => {
   try {
     const { accountId } = req.params;
 
